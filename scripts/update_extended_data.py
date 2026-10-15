@@ -950,7 +950,8 @@ def extract_debt_limit(rows: Iterable[Dict[str, Any]]) -> Dict[str, Dict[str, Op
             if value is None:
                 continue
             if "statutory debt limit" in category:
-                limit = value
+                # The statement shows 0 while the limit is suspended (e.g. June 2023 to January 2025).
+                limit = value if value > 0 else None
             elif "total public debt subject to limit" in category:
                 direct_total = value
             elif "held by the public" in category:
@@ -1355,9 +1356,10 @@ class ExtendedUpdater:
             dts_since = mspd_since = None
             if isinstance(saved_ceiling, dict) and saved_ceiling.get("dates"):
                 for i, d in enumerate(saved_ceiling["dates"]):
+                    saved_limit = saved_ceiling["statutoryLimit"][i]
                     limits[d] = {
                         "subject": saved_ceiling["debtSubjectToLimit"][i],
-                        "limit": saved_ceiling["statutoryLimit"][i],
+                        "limit": saved_limit if isinstance(saved_limit, (int, float)) and saved_limit > 0 else None,
                         "outstanding": saved_ceiling["totalOutstanding"][i],
                     }
                     if saved_ceiling["cashBalance"][i] is not None:
