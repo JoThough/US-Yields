@@ -390,12 +390,13 @@
    * -------------------------------------------------------------------------- */
 
   function renderHeaderMetadata(dataset) {
-    const updatedEl = document.getElementById("dataset-updated-at");
     const obsSummaryEl = document.getElementById("latest-obs-summary");
     const statusPillsEl = document.getElementById("source-status-pills");
 
-    if (updatedEl) {
-      updatedEl.textContent = formatIsoTimestamp(dataset.updatedAt || dataset.lastCheckedAt);
+    // The header shows how long ago the data was refreshed (see core.js), combining
+    // this file's timestamp with the extended datasets' manifest timestamp.
+    if (window.Yields && window.Yields.refresh) {
+      window.Yields.refresh.report("rates", dataset.updatedAt || dataset.lastCheckedAt);
     }
 
     const tDate = dataset?.sources?.treasury?.latestObservationDate || "N/A";
@@ -803,9 +804,9 @@
             { years: 30, label: "30y" },
           ]
         : [
-            { years: 1 / 12, label: "1M (0.08y)" },
-            { years: 0.25, label: "3M (0.25y)" },
-            { years: 0.5, label: "6M (0.5y)" },
+            // Short labels: the bill maturities sit close together on a √years axis.
+            { years: 1 / 12, label: "1M" },
+            { years: 0.5, label: "6M" },
             { years: 1, label: "1Y" },
             { years: 2, label: "2Y" },
             { years: 5, label: "5Y" },

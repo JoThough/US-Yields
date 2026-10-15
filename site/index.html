@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Yields — Official daily published U.S. Treasury par yield curve rates, Effective Federal Funds Rate (EFFR), Federal Reserve target range, and Secured Overnight Financing Rate (SOFR)." />
-  <title>Yields — Official U.S. Interest Rates</title>
+  <meta name="description" content="Yields — the official U.S. Treasury yield curve back to 1934, Fed funds and repo rates, TIPS and breakevens, inflation and GDP with revision history, and federal debt charts, from official government sources." />
+  <title>Yields — U.S. Treasury Yield Curve &amp; Official Interest Rates</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f172a'/%3E%3Cpath d='M5 23 L11 17 L17 19 L27 9' stroke='%2338bdf8' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='27' cy='9' r='3' fill='%2338bdf8'/%3E%3C/svg%3E" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
@@ -22,13 +22,13 @@
               <circle cx="20" cy="7" r="2.2" fill="currentColor" />
             </svg>
           </span>
-          <h1 class="site-title">Yields</h1>
-          <span class="pub-badge" title="Data reflects official daily publications from the U.S. Department of the Treasury and the Federal Reserve Bank of New York, not real-time intraday trading quotes.">
+          <h1 class="site-title"><a href="#/curve" class="site-title-link">Yields</a></h1>
+          <span class="pub-badge" title="Data reflects official end-of-day publications from the U.S. Treasury, the Federal Reserve and other government agencies, not real-time intraday trading quotes.">
             Daily Published Official Data — Not Live Trading Quotes
           </span>
         </div>
         <p class="site-subtitle">
-          U.S. Treasury Par Yield Curve, Effective Federal Funds Rate (EFFR), and Secured Overnight Financing Rate (SOFR)
+          U.S. Treasury yield curve back to 1934, policy rates, inflation and federal debt — from official government sources
         </p>
       </div>
 
@@ -58,11 +58,11 @@
       </div>
     </div>
 
-    <div class="container meta-bar" aria-live="polite">
+    <div class="container meta-bar">
       <div class="meta-items">
         <div class="meta-item">
-          <span class="meta-label">Dataset file updated (UTC):</span>
-          <strong id="dataset-updated-at" class="meta-value">Loading…</strong>
+          <span class="meta-label">Data refreshed:</span>
+          <time id="data-refreshed-ago" class="meta-value meta-strong" aria-live="polite">Loading…</time>
         </div>
         <span class="meta-divider" aria-hidden="true">•</span>
         <div class="meta-item">
@@ -73,18 +73,340 @@
         <div class="meta-item">
           <span class="meta-label">Source status:</span>
           <span id="source-status-pills" class="status-pills">Loading…</span>
+          <span id="ext-status-pills" class="status-pills"></span>
         </div>
       </div>
       <p id="reload-explainer" class="reload-note">
-        Note: “Reload displayed data” re-reads the saved <code>data/rates.json</code> file in your browser. New official rates are retrieved automatically by scheduled GitHub Actions workflows (not triggered by clicking reload).
+        Note: “Reload displayed data” re-reads the saved data files in your browser. New official data is retrieved automatically by scheduled GitHub Actions workflows on business days (not triggered by clicking reload).
       </p>
     </div>
+
+    <nav class="container view-nav" aria-label="Site sections">
+      <ul class="nav-list">
+        <li><a class="nav-link" href="#/curve" data-route="curve">Yield Curve</a></li>
+        <li><a class="nav-link" href="#/time-series" data-route="time-series">Time Series</a></li>
+        <li class="nav-dropdown">
+          <button type="button" class="nav-link nav-dropdown-toggle" aria-expanded="false" aria-controls="debt-menu" data-route-group="debt">
+            Federal Debt <span class="nav-caret" aria-hidden="true">▾</span>
+          </button>
+          <ul id="debt-menu" class="nav-menu" hidden>
+            <li><a class="nav-menu-link" href="#/debt-ceiling" data-route="debt-ceiling">Debt Ceiling</a></li>
+            <li><a class="nav-menu-link" href="#/debt-maturities" data-route="debt-maturities">Debt Maturity Composition</a></li>
+          </ul>
+        </li>
+        <li><a class="nav-link" href="#/valuation" data-route="valuation">Valuation</a></li>
+        <li><a class="nav-link" href="#/revisions" data-route="revisions">Data Revisions</a></li>
+        <li><a class="nav-link" href="#/dashboard" data-route="dashboard">Rates Dashboard</a></li>
+        <li><a class="nav-link" href="#/sources" data-route="sources">Sources</a></li>
+      </ul>
+    </nav>
   </header>
 
   <main id="main-content" class="container main-content">
     <!-- Status / Error / Staleness / Weekend Notice Banners -->
     <div id="alerts-container" class="alerts-container" role="region" aria-label="Data status notifications" aria-live="polite"></div>
+    <div id="ext-alerts" class="alerts-container" aria-live="polite"></div>
 
+    <!-- ===================================================================
+         View: Yield Curve
+         =================================================================== -->
+    <section id="view-curve" class="view" data-view="curve" aria-labelledby="curve-heading" hidden>
+      <div class="view-layout with-sidebar">
+        <aside class="sidebar" aria-label="Economic calendar and indicators">
+          <div class="side-card">
+            <h2 class="side-title">Upcoming Events</h2>
+            <ul id="events-list" class="events-list"><li class="muted">Loading…</li></ul>
+          </div>
+          <div class="side-card">
+            <h2 class="side-title">Macro Indicators</h2>
+            <dl id="indicators-list" class="indicators-list"><div class="muted">Loading…</div></dl>
+          </div>
+          <div class="side-card">
+            <h2 class="side-title">Rate Expectations</h2>
+            <p class="side-text">
+              Market-implied odds of future Fed decisions are published by the
+              <a href="https://www.atlantafed.org/cenfis/market-probability-tracker" target="_blank" rel="noopener noreferrer">Atlanta Fed Market Probability Tracker</a>
+              and <a href="https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html" target="_blank" rel="noopener noreferrer">CME FedWatch</a>.
+            </p>
+          </div>
+        </aside>
+
+        <div class="view-main">
+          <div class="view-header">
+            <h2 id="curve-heading" class="view-title">U.S. Treasury Yield Curve</h2>
+            <p class="view-desc">Official end-of-day par yields by maturity. Step through any date back to 1934, pin curves to compare them, and overlay the Fed funds target range, the reverse repo rate, TIPS real yields, breakeven inflation and CPI.</p>
+          </div>
+
+          <div class="panel curve-panel">
+            <div class="curve-toolbar">
+              <div class="date-stepper" role="group" aria-label="Curve date">
+                <button type="button" class="btn btn-square" id="curve-prev" aria-label="Previous published date" title="Previous date ( [ )">
+                  <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 2.5L5 8l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <input type="date" id="curve-date" class="date-input" aria-label="Curve date" />
+                <button type="button" class="btn btn-square" id="curve-next" aria-label="Next published date" title="Next date ( ] )">
+                  <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 2.5L11 8l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <button type="button" class="btn" id="curve-latest">Latest</button>
+                <button type="button" class="btn btn-primary" id="curve-pin" title="Keep this curve on the chart for comparison">
+                  <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M9.8 1.5l4.7 4.7-1.6.4-2.6 2.6.3 3.3-1.2 1.2-3-3-3.6 3.6-.9-.9 3.6-3.6-3-3 1.2-1.2 3.3.3 2.6-2.6z" fill="currentColor"/></svg>
+                  <span>Pin curve</span>
+                </button>
+                <button type="button" class="btn" id="curve-clear-pins">Clear pins</button>
+              </div>
+              <div class="control-group">
+                <label for="curve-spacing" class="control-label">Maturity spacing:</label>
+                <select id="curve-spacing" class="select-input">
+                  <option value="even">Even</option>
+                  <option value="sqrt">√ years</option>
+                  <option value="linear">Years (linear)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="slider-row">
+              <input type="range" id="curve-slider" class="date-slider" min="0" max="0" step="1" value="0" aria-label="Move through dates" />
+              <div class="slider-labels" aria-hidden="true"><span id="curve-slider-start"></span><span id="curve-slider-end"></span></div>
+            </div>
+
+            <fieldset class="overlay-toggles">
+              <legend class="visually-hidden">Chart overlays</legend>
+              <label class="toggle-chip"><input type="checkbox" id="ov-target" checked /> Fed funds target range</label>
+              <label class="toggle-chip"><input type="checkbox" id="ov-rrp" checked /> Reverse repo (RRP)</label>
+              <label class="toggle-chip"><input type="checkbox" id="ov-tips" /> TIPS real yields</label>
+              <label class="toggle-chip"><input type="checkbox" id="ov-breakeven" /> Breakeven inflation</label>
+              <label class="toggle-chip"><input type="checkbox" id="ov-cpi" /> Latest CPI y/y</label>
+            </fieldset>
+
+            <div class="chart-legend" id="curve-legend" aria-live="polite"></div>
+            <div class="chart-host" id="curve-chart" data-height="400"></div>
+            <p class="chart-note" id="curve-note"></p>
+          </div>
+
+          <div class="panel table-panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Yields on <span id="curve-table-date">—</span></h3>
+                <p class="panel-subtitle">Change versus the previous published date, and the difference between this curve and each pinned curve (Δ, in basis points; 1% = 100 bps).</p>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table" id="curve-table"><thead></thead><tbody></tbody></table>
+            </div>
+          </div>
+
+          <details class="panel help-panel">
+            <summary>How to read this chart</summary>
+            <div class="prose">
+              <p>Each point is the Treasury's official <em>par yield</em> for a maturity, calculated at the end of the trading day. Use the arrows (or the <kbd>[</kbd> and <kbd>]</kbd> keys while the chart is focused), the date box or the slider to move through history. <strong>Pin curve</strong> keeps the current curve on the chart so you can compare dates; remove a pin with the × in the legend.</p>
+              <p>“RRP” is the award rate of the Fed's overnight reverse repurchase facility. The shaded band is the FOMC's federal funds target range (a single target before December 2008). TIPS real yields start in 2003; breakeven inflation is the nominal yield minus the TIPS real yield at the same maturity.</p>
+              <p>Before 1990 the curve is rebuilt from the Federal Reserve's historical series on FRED. Before 1954 only monthly averages exist, and bill yields before 1982 are secondary-market rates quoted on a discount basis, so early curves are approximate.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         View: Time Series
+         =================================================================== -->
+    <section id="view-time-series" class="view" data-view="time-series" aria-labelledby="ts-heading" hidden>
+      <div class="view-header">
+        <h2 id="ts-heading" class="view-title">Treasuries &amp; Economic Indicators Time Series</h2>
+        <p class="view-desc">Chart yields, spreads, policy rates, TIPS and breakevens alongside inflation, GDP and unemployment — as first reported and as revised — with recessions shaded.</p>
+      </div>
+      <div class="view-layout with-picker">
+        <aside class="panel picker-panel" aria-label="Choose series">
+          <div class="picker-head">
+            <h3 class="panel-title">Series</h3>
+            <button type="button" id="ts-clear" class="btn btn-small">Clear all</button>
+          </div>
+          <div id="ts-picker" class="picker-groups"><p class="muted">Loading…</p></div>
+          <div class="spread-builder">
+            <h4 class="picker-group-title">Build a spread</h4>
+            <div class="spread-row">
+              <label class="visually-hidden" for="ts-spread-long">Longer maturity</label>
+              <select id="ts-spread-long" class="select-input"></select>
+              <span>minus</span>
+              <label class="visually-hidden" for="ts-spread-short">Shorter maturity</label>
+              <select id="ts-spread-short" class="select-input"></select>
+              <button type="button" id="ts-spread-add" class="btn btn-small">Add</button>
+            </div>
+          </div>
+        </aside>
+        <div class="view-main">
+          <div class="panel">
+            <div class="ts-toolbar">
+              <div class="range-btn-group" role="group" aria-label="Date range" id="ts-ranges"></div>
+              <div class="date-range">
+                <label>From <input type="date" id="ts-from" class="date-input" /></label>
+                <label>To <input type="date" id="ts-to" class="date-input" /></label>
+              </div>
+              <label class="toggle-chip"><input type="checkbox" id="ts-recessions" checked /> Recessions</label>
+              <span class="toolbar-spacer"></span>
+              <button type="button" id="ts-share" class="btn">Copy link</button>
+              <span id="ts-share-status" class="muted small" aria-live="polite"></span>
+              <button type="button" id="ts-csv" class="btn btn-primary">
+                <svg class="btn-icon" width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 11L3 6h3V1h4v5h3L8 11zm-6 2h12v2H2v-2z" fill="currentColor" /></svg>
+                <span>Download CSV</span>
+              </button>
+            </div>
+            <div class="chart-legend" id="ts-legend" aria-live="polite"></div>
+            <div class="chart-host" id="ts-chart" data-height="420"></div>
+            <p class="chart-note" id="ts-note"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         View: Debt Ceiling
+         =================================================================== -->
+    <section id="view-debt-ceiling" class="view" data-view="debt-ceiling" aria-labelledby="ceiling-heading" hidden>
+      <div class="view-header">
+        <h2 id="ceiling-heading" class="view-title">U.S. Federal Debt and the Debt Ceiling</h2>
+        <p id="ceiling-headline" class="headline">Loading…</p>
+      </div>
+      <div class="stat-grid" id="ceiling-stats"></div>
+      <div class="panel">
+        <div class="ts-toolbar">
+          <div class="range-btn-group" role="group" aria-label="Date range" id="ceiling-ranges"></div>
+          <div class="date-range">
+            <label>From <input type="date" id="ceiling-from" class="date-input" /></label>
+            <label>To <input type="date" id="ceiling-to" class="date-input" /></label>
+          </div>
+        </div>
+        <div class="chart-legend" id="ceiling-legend"></div>
+        <div class="chart-host" id="ceiling-chart" data-height="400"></div>
+        <p class="chart-note">Amounts in trillions of dollars. Source: Daily Treasury Statement via the <a href="https://fiscaldata.treasury.gov/datasets/daily-treasury-statement/" target="_blank" rel="noopener noreferrer">Treasury Fiscal Data API</a>. The red line is absent while the limit is suspended.</p>
+      </div>
+      <div class="panel prose">
+        <h3 class="panel-title">How to read this</h3>
+        <p>The debt ceiling is the maximum amount of debt the Treasury may have outstanding, set by law and periodically raised or suspended by Congress. The <strong>room under the limit</strong> is the statutory limit minus the debt subject to it. The <strong>Treasury General Account (TGA)</strong> is the government's cash account at the Federal Reserve; adding it gives a rough measure of the money available before a debt-ceiling standoff:</p>
+        <p class="formula">funding available ≈ debt limit − debt subject to limit + TGA cash</p>
+        <p>The green line (debt minus cash) approaching the red line (the limit) shows that cushion shrinking. Treasuries mature every day, which frees room for new borrowing within the same limit. The chart does not show the Treasury's “extraordinary measures”, temporary accounting steps that can postpone hitting the limit.</p>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         View: Debt Maturity Composition
+         =================================================================== -->
+    <section id="view-debt-maturities" class="view" data-view="debt-maturities" aria-labelledby="maturities-heading" hidden>
+      <div class="view-header">
+        <h2 id="maturities-heading" class="view-title">Federal Debt Maturity Composition</h2>
+        <p class="view-desc">Federal debt by type of security, which roughly indicates how soon it must be repaid or rolled over. <span id="maturities-asof"></span></p>
+      </div>
+      <div class="panel">
+        <div class="ts-toolbar">
+          <div class="range-btn-group" role="group" aria-label="Date range" id="maturities-ranges"></div>
+          <label class="toggle-chip"><input type="checkbox" id="maturities-percent" /> Show as share of total</label>
+        </div>
+        <div class="chart-legend" id="maturities-legend"></div>
+        <div class="chart-host" id="maturities-chart" data-height="400"></div>
+      </div>
+      <div class="panel table-panel">
+        <div class="panel-header"><h3 class="panel-title" id="maturities-table-head">Latest composition</h3></div>
+        <div class="table-responsive">
+          <table class="data-table" id="maturities-table">
+            <thead><tr><th scope="col">Security type</th><th scope="col" class="num-col">Amount</th><th scope="col" class="num-col">Share</th><th scope="col" class="num-col">Change over 12 months</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel prose">
+        <h3 class="panel-title">Security types</h3>
+        <ul>
+          <li><strong>Bills</strong> mature in under one year; <strong>notes</strong> in 2 to 10 years; <strong>bonds</strong> in 20 or 30 years.</li>
+          <li><strong>Floating rate notes</strong> mature in two years and pay interest that resets with 13-week bill auctions.</li>
+          <li><strong>TIPS</strong> are inflation-protected notes and bonds of any maturity up to 30 years.</li>
+          <li><strong>Nonmarketable</strong> debt is not traded: mainly Government Account Series held by federal trust funds, plus savings bonds and State and Local Government Series.</li>
+        </ul>
+        <p class="muted small">Source: Monthly Statement of the Public Debt via the <a href="https://fiscaldata.treasury.gov/datasets/monthly-statement-public-debt/" target="_blank" rel="noopener noreferrer">Treasury Fiscal Data API</a>.</p>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         View: Valuation calculator
+         =================================================================== -->
+    <section id="view-valuation" class="view" data-view="valuation" aria-labelledby="valuation-heading" hidden>
+      <div class="view-header">
+        <h2 id="valuation-heading" class="view-title">Treasury Securities Valuation Calculator</h2>
+        <p class="view-desc">Estimate how changes in market interest rates move the market value of a Treasury note or bond you hold.</p>
+      </div>
+      <div class="view-layout with-form">
+        <form class="panel valuation-form" id="val-form" onsubmit="return false;" aria-label="Security details">
+          <h3 class="panel-title">Your security</h3>
+          <label class="field"><span>Face value ($)</span><input type="number" id="val-face" min="1" step="1000" value="10000" inputmode="decimal" /></label>
+          <label class="field"><span>Coupon rate (% a year)</span><input type="number" id="val-coupon" min="0" max="30" step="0.125" value="4" inputmode="decimal" /></label>
+          <label class="field"><span>Years to maturity</span><input type="number" id="val-years" min="0.25" max="100" step="0.25" value="10" inputmode="decimal" /></label>
+          <label class="field"><span>Coupons per year</span>
+            <select id="val-freq" class="select-input"><option value="2" selected>2 (Treasury notes and bonds)</option><option value="1">1</option><option value="4">4</option><option value="12">12</option></select>
+          </label>
+          <label class="field"><span>Market yield (% a year)</span><input type="number" id="val-yield" min="-5" max="30" step="0.01" value="4" inputmode="decimal" /></label>
+          <div class="field-actions">
+            <button type="button" class="btn" id="val-use-market">Use latest Treasury yield</button>
+            <button type="button" class="btn" id="val-par">Set coupon = yield</button>
+          </div>
+          <p class="muted small" id="val-market-note"></p>
+          <p class="form-error" id="val-error" role="alert"></p>
+        </form>
+        <div class="view-main">
+          <div class="stat-grid compact" id="val-results"></div>
+          <div class="panel">
+            <h3 class="panel-title" id="val-chart-title">Market value by yield</h3>
+            <div class="chart-host" id="val-chart" data-height="340"></div>
+          </div>
+          <div class="panel table-panel">
+            <div class="panel-header"><h3 class="panel-title">If yields change</h3></div>
+            <div class="table-responsive">
+              <table class="data-table" id="val-scenarios">
+                <thead><tr><th scope="col" class="num-col">Yield move</th><th scope="col" class="num-col">New yield</th><th scope="col" class="num-col">Market value</th><th scope="col" class="num-col">Change</th><th scope="col" class="num-col">Change %</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+          <p class="muted small">Prices are for a whole number of coupon periods on a coupon date (no accrued interest), discounted at the market yield. This is an estimate for education, not a quote.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         View: Data revisions
+         =================================================================== -->
+    <section id="view-revisions" class="view" data-view="revisions" aria-labelledby="revisions-heading" hidden>
+      <div class="view-header">
+        <h2 id="revisions-heading" class="view-title">Economic Data Revision History</h2>
+        <p class="view-desc">Every first release and later revision of key indicators, as published by the Bureau of Labor Statistics and the Bureau of Economic Analysis (from the St. Louis Fed's ALFRED archive). Values are percentages.</p>
+      </div>
+      <div class="panel">
+        <div class="ts-toolbar">
+          <label class="control-group" for="rev-filter"><span class="control-label">Indicator:</span>
+            <select id="rev-filter" class="select-input"><option value="ALL">All indicators</option></select>
+          </label>
+          <span id="rev-count" class="muted small"></span>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table" id="rev-table">
+            <thead><tr><th scope="col">Indicator</th><th scope="col">Period</th><th scope="col">Revision date</th><th scope="col">Revision</th><th scope="col" class="num-col">New value</th><th scope="col" class="num-col">Previous value</th><th scope="col" class="num-col">Change</th></tr></thead>
+            <tbody id="rev-tbody"><tr><td colspan="7">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="pager">
+          <button type="button" class="btn btn-small" id="rev-first">First</button>
+          <button type="button" class="btn btn-small" id="rev-prev">Previous</button>
+          <span id="rev-page" class="muted small">Page 1</span>
+          <button type="button" class="btn btn-small" id="rev-next">Next</button>
+          <button type="button" class="btn btn-small" id="rev-last">Last</button>
+        </div>
+        <p class="chart-note" id="rev-truncated" hidden>Only the most recent revisions are kept to limit file size.</p>
+        <p class="chart-note">Percent changes are computed from the published index levels and shown to two decimals (official releases round to one, so a small revision can leave the headline figure unchanged). CPI y/y uses the not seasonally adjusted index, which is rarely revised; CPI and PPI m/m use seasonally adjusted indexes, revised every February.</p>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         View: Rates dashboard (original page)
+         =================================================================== -->
+    <section id="view-dashboard" class="view" data-view="dashboard" aria-label="Rates dashboard" hidden>
     <!-- Section 1: Key Benchmark Rate Cards -->
     <section class="section" aria-labelledby="benchmark-heading">
       <div class="section-header">
@@ -336,22 +658,93 @@
         </article>
       </div>
     </section>
+    </section>
+
+    <!-- ===================================================================
+         View: Sources
+         =================================================================== -->
+    <section id="view-sources" class="view" data-view="sources" aria-labelledby="sources-view-heading" hidden>
+      <div class="view-header">
+        <h2 id="sources-view-heading" class="view-title">Data Sources &amp; Update Status</h2>
+        <p class="view-desc">Every figure on this site comes from an official U.S. government publication. Data is fetched automatically on business days at 15:17 and 23:17 UTC; Treasury yields for a day are published after about 4:30 pm New York time.</p>
+      </div>
+      <div class="panel table-panel">
+        <div class="panel-header"><h3 class="panel-title">Source status</h3></div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead><tr><th scope="col">Source</th><th scope="col">Status</th><th scope="col">Latest observation</th><th scope="col">Last successful update</th></tr></thead>
+            <tbody id="sources-status-tbody"><tr><td colspan="4">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <p class="chart-note" id="sources-fred-note"></p>
+      </div>
+      <div class="definitions-grid">
+        <article class="info-card">
+          <h3 class="info-card-title">Treasury yield curves</h3>
+          <p class="info-card-text">Daily par yield curve rates (1990–present) and par real yield curve rates for TIPS (2003–present) from the U.S. Department of the Treasury. Yields before 1990 come from the Federal Reserve Board's H.15 historical series on FRED: daily constant-maturity yields from 1962 (3- and 6-month bill rates from 1954 and 1958), monthly averages back to 1934.</p>
+          <ul class="info-links">
+            <li><a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve" target="_blank" rel="noopener noreferrer">Daily Treasury Par Yield Curve Rates</a></li>
+            <li><a href="https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve" target="_blank" rel="noopener noreferrer">Daily Treasury Par Real Yield Curve Rates</a></li>
+            <li><a href="https://home.treasury.gov/policy-issues/financing-the-government/interest-rate-statistics/treasury-yield-curve-methodology" target="_blank" rel="noopener noreferrer">Treasury yield curve methodology</a></li>
+          </ul>
+        </article>
+        <article class="info-card">
+          <h3 class="info-card-title">Policy rates</h3>
+          <p class="info-card-text">Federal funds target range (DFEDTARL, DFEDTARU; DFEDTAR before December 2008), the effective federal funds rate (DFF) and the overnight reverse repo award rate (RRPONTSYAWARD), from FRED. EFFR and SOFR on the Rates Dashboard come directly from the New York Fed.</p>
+          <ul class="info-links">
+            <li><a href="https://fred.stlouisfed.org/series/DFEDTARU" target="_blank" rel="noopener noreferrer">FRED: Federal funds target range</a></li>
+            <li><a href="https://markets.newyorkfed.org/static/docs/markets-api.html" target="_blank" rel="noopener noreferrer">New York Fed Markets Data API</a></li>
+          </ul>
+        </article>
+        <article class="info-card">
+          <h3 class="info-card-title">Inflation, GDP &amp; jobs</h3>
+          <p class="info-card-text">CPI (CPIAUCNS, CPIAUCSL) and PPI final demand (PPIFID, PPIFIS) from the Bureau of Labor Statistics, the PCE price index (PCEPI) and real GDP growth (A191RL1Q225SBEA) from the Bureau of Economic Analysis, and the unemployment rate (UNRATE). First releases and revisions come from the ALFRED vintage archive. Recessions: NBER dates (USREC). Release dates: the FRED release calendar.</p>
+          <ul class="info-links">
+            <li><a href="https://fred.stlouisfed.org/docs/api/fred/" target="_blank" rel="noopener noreferrer">FRED API documentation</a></li>
+            <li><a href="https://alfred.stlouisfed.org/" target="_blank" rel="noopener noreferrer">ALFRED (archival FRED)</a></li>
+          </ul>
+        </article>
+        <article class="info-card">
+          <h3 class="info-card-title">Federal debt</h3>
+          <p class="info-card-text">Debt subject to the limit, the statutory debt limit and the Treasury General Account balance from the Daily Treasury Statement; debt by security type from the Monthly Statement of the Public Debt — both through the Treasury Fiscal Data API.</p>
+          <ul class="info-links">
+            <li><a href="https://fiscaldata.treasury.gov/datasets/daily-treasury-statement/" target="_blank" rel="noopener noreferrer">Daily Treasury Statement</a></li>
+            <li><a href="https://fiscaldata.treasury.gov/datasets/monthly-statement-public-debt/" target="_blank" rel="noopener noreferrer">Monthly Statement of the Public Debt</a></li>
+            <li><a href="https://fiscaldata.treasury.gov/api-documentation/" target="_blank" rel="noopener noreferrer">Fiscal Data API documentation</a></li>
+          </ul>
+        </article>
+      </div>
+      <p class="muted small">This site is an independent project and is not affiliated with or endorsed by any government agency. FRED® is a registered trademark of the Federal Reserve Bank of St. Louis.</p>
+    </section>
   </main>
 
   <footer class="site-footer">
     <div class="container footer-inner">
       <p class="footer-text">
-        <strong>Yields</strong> — Open-source static dashboard for official U.S. interest rates. Data is provided for informational purposes only and represents daily published official series rather than live trading quotes.
+        <strong>Yields</strong> — Open-source static site for official U.S. interest rate and economic data. Information only; daily published official series rather than live trading quotes.
       </p>
       <p class="footer-links">
         Sources:
-        <a href="https://home.treasury.gov/treasury-daily-interest-rate-xml-feed" target="_blank" rel="noopener noreferrer">U.S. Department of the Treasury</a>
+        <a href="https://home.treasury.gov/treasury-daily-interest-rate-xml-feed" target="_blank" rel="noopener noreferrer">U.S. Treasury</a>
         •
-        <a href="https://markets.newyorkfed.org/static/docs/markets-api.html" target="_blank" rel="noopener noreferrer">Federal Reserve Bank of New York Markets API</a>
+        <a href="https://markets.newyorkfed.org/static/docs/markets-api.html" target="_blank" rel="noopener noreferrer">New York Fed</a>
+        •
+        <a href="https://fred.stlouisfed.org/" target="_blank" rel="noopener noreferrer">FRED</a>
+        •
+        <a href="https://fiscaldata.treasury.gov/" target="_blank" rel="noopener noreferrer">Fiscal Data</a>
+        •
+        <a href="#/sources">All sources</a>
       </p>
     </div>
   </footer>
 
+  <script src="./core.js" defer></script>
   <script src="./app.js" defer></script>
+  <script src="./curve.js" defer></script>
+  <script src="./timeseries.js" defer></script>
+  <script src="./debt.js" defer></script>
+  <script src="./valuation.js" defer></script>
+  <script src="./revisions.js" defer></script>
+  <script src="./main.js" defer></script>
 </body>
 </html>
