@@ -203,7 +203,7 @@ class TestTreasuryFeeds(unittest.TestCase):
 
     def test_years_to_fetch_backfills_then_only_refreshes_recent_years(self) -> None:
         today = datetime.date(2026, 10, 15)
-        self.assertEqual(ext.treasury_years_to_fetch({}, today, 1990, "nominal"), list(range(1990, 2027)))
+        self.assertEqual(ext.treasury_years_to_fetch({}, today, 1990, "nominal"), list(range(2026, 1989, -1)))
         existing = {}
         for year in range(1990, 2027):
             model = ext.CurveYear(year)
@@ -211,18 +211,45 @@ class TestTreasuryFeeds(unittest.TestCase):
             existing[year] = model
         self.assertEqual(ext.treasury_years_to_fetch(existing, today, 1990, "nominal"), [2026])
         # In January the previous year is refreshed as well (late revisions).
-        self.assertEqual(ext.treasury_years_to_fetch(existing, datetime.date(2026, 1, 9), 1990, "nominal"), [2025, 2026])
+        self.assertEqual(ext.treasury_years_to_fetch(existing, datetime.date(2026, 1, 9), 1990, "nominal"), [2026, 2025])
 
     def test_empty_answer_never_wipes_saved_year(self) -> None:
         model = ext.CurveYear(2026)
         model.nominal = {"2026-01-02": {k: 4.0 for k in ext.NOMINAL_KEYS}}
         years = {2026: model}
-        fetched, latest = ext.update_treasury_block(
+        fetched, latest, remaining = ext.update_treasury_block(
             years, datetime.date(2026, 1, 5), lambda url: treasury_xml([]), "nominal"
         )
+        self.assertEqual(remaining, 0)
         self.assertEqual(latest, "2026-01-02")
         self.assertIn("2026-01-02", years[2026].nominal)
         self.assertGreater(fetched, 0)
+
+    def test_backfill_stops_at_deadline_and_resumes(self) -> None:
+        ticks = iter(range(1000))
+        clock = lambda: next(ticks)  # noqa: E731  (each call advances one "second")
+        calls: List[int] = []
+
+        def fetch(url: str) -> bytes:
+            year = int(urllib.parse.parse_qs(urllib.parse.urlparse(url).query)["field_tdr_date_value"][0])
+            calls.append(year)
+            return treasury_xml([(f"{year}-06-03", nominal_values(4.0))])
+
+        years: Dict[int, ext.CurveYear] = {}
+        fetched, latest, remaining = ext.update_treasury_block(
+            years, datetime.date(2026, 10, 15), fetch, "nominal", deadline=2, clock=clock, workers=4
+        )
+        self.assertEqual(calls[:2], [2026, 2025])  # recent years always first
+        self.assertGreater(remaining, 0)
+        self.assertEqual(fetched + remaining, 37)
+        self.assertEqual(latest, "2026-06-03")
+        # Next run continues with the missing (older) years only.
+        calls.clear()
+        fetched2, _latest, remaining2 = ext.update_treasury_block(years, datetime.date(2026, 10, 15), fetch, "nominal")
+        self.assertEqual(remaining2, 0)
+        # Missing years, plus the current year and the (incomplete-looking) previous year.
+        self.assertEqual(len(calls), remaining + 2)
+        self.assertEqual(sorted(y for y in years), list(range(1990, 2027)))
 
     def test_curve_year_round_trip_keeps_nulls_and_drops_empty_columns(self) -> None:
         model = ext.CurveYear(2026)
@@ -520,6 +547,19 @@ class TestEndToEnd(unittest.TestCase):
             self.assertIsNone(manifest["curve"]["pre1990Version"])
             self.assertTrue((data_dir / "series" / "UST10Y.json").exists())
             self.assertFalse((data_dir / "series" / "EFFR.json").exists())
+
+    def test_fiscal_data_is_fetched_incrementally_after_first_run(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            data_dir = Path(tmp)
+            self.run_updater(data_dir, None, FakeNetwork(), "2026-10-15T15:17:00Z")
+            network = FakeNetwork()
+            self.run_updater(data_dir, None, network, "2026-10-15T23:17:00Z")
+            fiscal_urls = [u for u in network.urls if "fiscaldata" in u]
+            self.assertTrue(fiscal_urls)
+            self.assertTrue(all("filter=record_date:gte:" in u for u in fiscal_urls))
+            ceiling = json.loads((data_dir / "debt" / "ceiling.json").read_text())
+            self.assertEqual(ceiling["dates"], ["2026-10-13"])
+            self.assertEqual(ceiling["cashBalance"], [920214])
 
     def test_write_json_if_changed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
