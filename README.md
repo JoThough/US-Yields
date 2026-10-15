@@ -1,6 +1,18 @@
 # Yields — Official U.S. Interest Rates Dashboard
 
-**Yields** is a zero-dependency, static financial dashboard that downloads, validates, and displays daily published U.S. interest rates from official government and Federal Reserve sources:
+**Yields** is a zero-dependency, static financial site that downloads, validates, and displays daily published U.S. interest rates and economic data from official government and Federal Reserve sources. It has separate views (tabs):
+
+- **Yield Curve** — the Treasury par yield curve for any date back to 1934: step through dates, pin curves to compare, and overlay the Fed funds target range, the overnight reverse repo (RRP) rate, TIPS real yields, breakeven inflation and the latest CPI reading. A sidebar shows upcoming economic releases and the latest macro indicators.
+- **Time Series** — chart any combination of Treasury yields, spreads, policy rates, TIPS, breakevens, CPI, PCE, PPI, real GDP and unemployment (latest revision or as first reported), with NBER recessions shaded, shareable links and CSV export.
+- **Federal Debt** — the debt ceiling (debt subject to limit, statutory limit, Treasury General Account cash) and the debt's composition by security type.
+- **Valuation** — a calculator for how rate changes move the value of a Treasury note or bond (price, duration, convexity, DV01, scenarios).
+- **Data Revisions** — every first release and later revision of CPI, PCE, PPI, real GDP and unemployment.
+- **Rates Dashboard** — the original dashboard (benchmark cards, current curve, 3-year history explorer).
+- **Sources** — all sources and their update status.
+
+The header shows how long ago the data was last refreshed.
+
+Core rates (always updated, no API key needed):
 
 - **U.S. Department of the Treasury — Daily Par Yield Curve Rates**: All 14 published maturities (`1M`, `6W` / `BC_1_5MONTH`, `2M`, `3M`, `4M`, `6M`, `1Y`, `2Y`, `3Y`, `5Y`, `7Y`, `10Y`, `20Y`, and `30Y`), explicitly excluding the duplicate `BC_30YEARDISPLAY` field.
 - **Federal Reserve Bank of New York — Effective Federal Funds Rate (EFFR)** and the **FOMC Federal Funds Target Range**.
@@ -19,15 +31,30 @@ All frontend assets (`site/index.html`, `site/styles.css`, `site/app.js`, and `s
 │       ├── ci.yml          # Pull-request test workflow (no commits or deployments)
 │       └── publish.yml     # Production updater + GitHub Pages deployment workflow
 ├── scripts/
-│   └── update_data.py      # Python 3 standard-library data downloader & normalizer
+│   ├── update_data.py           # Core rates: Treasury curve (3 years), EFFR, SOFR
+│   └── update_extended_data.py  # Curve history, TIPS, FRED, Fiscal Data (see below)
 ├── site/
 │   ├── data/
-│   │   └── rates.json      # Normalized historical & latest official observations
-│   ├── app.js              # Vanilla JS dashboard, SVG charts, tables, CSV exporter
-│   ├── index.html          # Accessible responsive dashboard markup
-│   └── styles.css          # Light & dark theme financial dashboard styles
+│   │   ├── rates.json      # Core rates (Rates Dashboard)
+│   │   ├── manifest.json   # Extended data: status, series catalog, sidebar data
+│   │   ├── curve/YYYY.json # One file per year of daily curves, 1934–present
+│   │   ├── series/*.json   # One file per time series
+│   │   ├── debt/*.json     # Debt ceiling and debt composition
+│   │   ├── recessions.json # NBER recession dates
+│   │   └── revisions.json  # Revision history of economic indicators
+│   ├── core.js             # Shared helpers, router, chart engine
+│   ├── app.js              # Rates Dashboard view
+│   ├── curve.js            # Yield Curve view and sidebar
+│   ├── timeseries.js       # Time Series view
+│   ├── debt.js             # Federal Debt views
+│   ├── valuation.js        # Valuation calculator
+│   ├── revisions.js        # Data Revisions view
+│   ├── main.js             # Navigation, header status, Sources view
+│   ├── index.html          # Accessible responsive markup for all views
+│   └── styles.css          # Light & dark theme styles
 ├── tests/
-│   └── test_update_data.py # Unit tests for XML/JSON parsing, revisions, spreads & errors
+│   ├── test_update_data.py          # Core updater tests
+│   └── test_update_extended_data.py # Extended updater tests
 ├── .gitignore
 ├── LICENSE                 # MIT License + official data-provider attribution & terms
 └── README.md
@@ -49,11 +76,14 @@ python3 -m unittest discover -s tests -v
 ```
 
 ### Step 2: Download and update official rate data
-Run the updater script:
+Run the updater scripts:
 
 ```bash
 python3 scripts/update_data.py
+FRED_API_KEY=your_key_here python3 scripts/update_extended_data.py
 ```
+
+`update_extended_data.py` works without `FRED_API_KEY` too; it then skips the FRED-based data (pre-1990 yields, Fed funds and RRP rates, inflation, GDP, unemployment, revisions, recessions and the release calendar). The first run downloads the full history (about 110 requests, a few minutes); later runs only refresh recent data. A free FRED API key is available from a FRED account at <https://fredaccount.stlouisfed.org/>.
 
 - **First run**: Downloads the current calendar year and the previous two calendar years of official Treasury XML, EFFR JSON, and SOFR JSON history and writes `site/data/rates.json`.
 - **Subsequent runs**: Fetches recent months/observations, merges revisions, deduplicates by date, preserves missing values as `null` (never `0`), and only rewrites `site/data/rates.json` when meaningful observations or source statuses change.
@@ -104,6 +134,13 @@ git push -u origin main
 4. In the left sidebar, click **Actions** → **General** and confirm that **Actions permissions** allows workflows to run.
 
 ---
+
+### Add the FRED API key as a repository secret
+
+1. In your repository, open **Settings** → **Secrets and variables** → **Actions**.
+2. Click **New repository secret**, name it `FRED_API_KEY`, paste your key and save.
+
+The key is passed only to the “Update extended datasets” step of `publish.yml`, is never written to the data files or logs, and is not available to pull requests from forks. If the extended step fails, the workflow still publishes the core rates and shows a warning.
 
 ## 4. Manually Running the Publishing Workflow
 
@@ -191,5 +228,6 @@ The production workflow (`.github/workflows/publish.yml`) runs automatically on 
 Original code in this repository is licensed under the [MIT License](./LICENSE).
 
 Interest rate series are public official data published by:
-- **U.S. Department of the Treasury**: [Daily Treasury Par Yield Curve Rates](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve) ([XML Feed Docs](https://home.treasury.gov/treasury-daily-interest-rate-xml-feed))
+- **U.S. Department of the Treasury**: [Daily Treasury Par Yield Curve Rates](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve) and [Par Real Yield Curve Rates](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve) ([XML Feed Docs](https://home.treasury.gov/treasury-daily-interest-rate-xml-feed)); [Daily Treasury Statement](https://fiscaldata.treasury.gov/datasets/daily-treasury-statement/) and [Monthly Statement of the Public Debt](https://fiscaldata.treasury.gov/datasets/monthly-statement-public-debt/) via the [Fiscal Data API](https://fiscaldata.treasury.gov/api-documentation/)
 - **Federal Reserve Bank of New York**: [EFFR](https://www.newyorkfed.org/markets/reference-rates/effr) and [SOFR](https://www.newyorkfed.org/markets/reference-rates/sofr) ([Markets Data API Docs](https://markets.newyorkfed.org/static/docs/markets-api.html) · [Terms of Use](https://www.newyorkfed.org/markets/data-api-intangibles/terms-of-use))
+- **Federal Reserve Bank of St. Louis, FRED and ALFRED** ([API docs](https://fred.stlouisfed.org/docs/api/fred/)): historical Treasury yields (Board of Governors H.15), Fed funds target and effective rate, overnight reverse repo award rate, CPI and PPI (Bureau of Labor Statistics), PCE price index and real GDP (Bureau of Economic Analysis), unemployment rate, NBER recession indicators and the economic release calendar. FRED® is a registered trademark of the Federal Reserve Bank of St. Louis.
