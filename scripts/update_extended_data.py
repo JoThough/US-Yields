@@ -48,6 +48,7 @@ import time
 import urllib.parse
 import xml.etree.ElementTree as ET
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
@@ -429,7 +430,11 @@ def load_curve_years(curve_dir: Path) -> Dict[int, CurveYear]:
 def treasury_years_to_fetch(
     existing: Dict[int, CurveYear], today: datetime.date, first_year: int, block: str
 ) -> List[int]:
-    """Years whose Treasury data is missing or may still change (current/previous year)."""
+    """
+    Years whose Treasury data is missing or may still change, in fetch order:
+    the current year, then the previous year (when needed), then missing
+    history newest-first (so an interrupted backfill fills recent years first).
+    """
     wanted: List[int] = []
     for year in range(first_year, today.year + 1):
         model = existing.get(year)
@@ -442,7 +447,7 @@ def treasury_years_to_fetch(
             last = max(rows) if rows else ""
             if last < f"{year}-12-28" or today <= datetime.date(today.year, 1, 31):
                 wanted.append(year)
-    return wanted
+    return sorted(wanted, reverse=True)
 
 
 def update_treasury_block(
@@ -451,34 +456,67 @@ def update_treasury_block(
     fetcher: Fetcher,
     block: str,
     pause: Callable[[], None] = lambda: None,
-) -> Tuple[int, Optional[str]]:
-    """Fetch nominal or real Treasury curve years into curve_years. Returns (years fetched, latest date)."""
+    deadline: Optional[float] = None,
+    clock: Callable[[], float] = time.monotonic,
+    workers: int = 4,
+) -> Tuple[int, Optional[str], int]:
+    """
+    Fetch nominal or real Treasury curve years into curve_years.
+    Recent years are always fetched; missing history is backfilled in parallel
+    until `deadline` (a clock() value) passes, and the rest is left for the next run.
+    Returns (years fetched, latest date, years still to backfill).
+    """
     if block == "nominal":
         feed, first_year, parser = "daily_treasury_yield_curve", NOMINAL_FIRST_YEAR, core.parse_treasury_xml
     else:
         feed, first_year, parser = "daily_treasury_real_yield_curve", REAL_FIRST_YEAR, parse_treasury_real_xml
+    keys = NOMINAL_KEYS if block == "nominal" else REAL_KEYS
 
-    fetched = 0
-    for year in treasury_years_to_fetch(curve_years, today, first_year, block):
-        observations = parser(fetcher(build_treasury_feed_url(feed, year)))
-        model = curve_years.get(year) or CurveYear(year)
-        model.source = "treasury"
-        model.notes = None
+    def fetch(year: int) -> Tuple[int, List[Dict[str, Any]]]:
+        return year, parser(fetcher(build_treasury_feed_url(feed, year)))
+
+    def apply(year: int, observations: List[Dict[str, Any]]) -> None:
         rows = {
-            obs["date"]: {key: obs["yields"].get(key) for key in (NOMINAL_KEYS if block == "nominal" else REAL_KEYS)}
+            obs["date"]: {key: obs["yields"].get(key) for key in keys}
             for obs in observations
             if obs["date"].startswith(f"{year:04d}-")
         }
         # An empty answer never wipes saved history (it is normal on the first
         # days of January, and otherwise most likely a transient feed problem).
-        if rows:
-            if block == "nominal":
-                model.nominal = rows
-            else:
-                model.real = rows
-            curve_years[year] = model
+        if not rows:
+            return
+        model = curve_years.get(year) or CurveYear(year)
+        model.source = "treasury"
+        model.notes = None
+        if block == "nominal":
+            model.nominal = rows
+        else:
+            model.real = rows
+        curve_years[year] = model
+
+    years = treasury_years_to_fetch(curve_years, today, first_year, block)
+    recent = [y for y in years if y >= today.year - 1]
+    backfill = [y for y in years if y < today.year - 1]
+    fetched = 0
+    for year in recent:
+        apply(*fetch(year))
         fetched += 1
         pause()
+
+    remaining = 0
+    if backfill:
+        with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+            index = 0
+            while index < len(backfill):
+                if deadline is not None and clock() > deadline:
+                    remaining = len(backfill) - index
+                    break
+                chunk = backfill[index:index + max(1, workers)]
+                for year, observations in pool.map(fetch, chunk):
+                    apply(year, observations)
+                    fetched += 1
+                index += len(chunk)
+                pause()
 
     latest: Optional[str] = None
     for model in curve_years.values():
@@ -488,7 +526,7 @@ def update_treasury_block(
             latest = candidate if latest is None or candidate > latest else latest
     if latest is None:
         raise DataSourceError(f"Treasury {block} curve feed returned no observations.")
-    return fetched, latest
+    return fetched, latest, remaining
 
 
 def build_pre1990_curve(series_values: Dict[str, Dict[str, float]]) -> Dict[int, CurveYear]:
@@ -815,11 +853,15 @@ def upcoming_events(
 # U.S. Treasury Fiscal Data API
 # ---------------------------------------------------------------------------
 
-def build_fiscal_url(endpoint: str, fields: Sequence[str], page: int, page_size: int, sort: str = "record_date") -> str:
+def build_fiscal_url(
+    endpoint: str, fields: Sequence[str], page: int, page_size: int, sort: str = "record_date", since: Optional[str] = None
+) -> str:
     query = (
         f"fields={','.join(fields)}&sort={sort}"
         f"&page[number]={page}&page[size]={page_size}"
     )
+    if since:
+        query += f"&filter=record_date:gte:{since}"
     return f"{FISCAL_BASE_URL}{endpoint}?{query}"
 
 
@@ -829,11 +871,12 @@ def fetch_fiscal_rows(
     fields: Sequence[str],
     page_size: int = 10000,
     max_pages: int = 50,
+    since: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     rows: List[Dict[str, Any]] = []
     page = 1
     while page <= max_pages:
-        body = fetcher(build_fiscal_url(endpoint, fields, page, page_size))
+        body = fetcher(build_fiscal_url(endpoint, fields, page, page_size, since=since))
         try:
             payload = json.loads(body.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
@@ -1068,6 +1111,8 @@ class ExtendedUpdater:
         treasury_pause: float = 0.25,
         sleep: Callable[[float], None] = time.sleep,
         log: Callable[[str], None] = print,
+        backfill_seconds: Optional[float] = None,
+        clock: Callable[[], float] = time.monotonic,
     ) -> None:
         self.data_dir = data_dir
         self.fetcher = fetcher
@@ -1078,6 +1123,8 @@ class ExtendedUpdater:
         self.treasury_pause = treasury_pause
         self.sleep = sleep
         self.log = log
+        self.clock = clock
+        self.deadline = clock() + backfill_seconds if backfill_seconds is not None else None
         self.changed_files: List[str] = []
         self.manifest_path = data_dir / "manifest.json"
         previous = load_json(self.manifest_path)
@@ -1098,9 +1145,17 @@ class ExtendedUpdater:
         pause = (lambda: self.sleep(self.treasury_pause)) if self.treasury_pause > 0 else (lambda: None)
         for block, key in (("nominal", "treasuryNominal"), ("real", "treasuryReal")):
             try:
-                fetched, latest = update_treasury_block(curve_years, self.today, self.fetcher, block, pause)
-                self.statuses[key] = status_entry("ok", None, self.prev_status(key), self.now_iso, latest)
-                self.log(f"[{key}] OK — fetched {fetched} year(s), latest {latest}")
+                fetched, latest, remaining = update_treasury_block(
+                    curve_years, self.today, self.fetcher, block, pause, deadline=self.deadline, clock=self.clock
+                )
+                if remaining:
+                    note = f"History backfill in progress: {remaining} earlier year(s) are fetched on the next scheduled update."
+                    self.statuses[key] = status_entry("partial", note, self.prev_status(key), self.now_iso, latest)
+                    self.statuses[key]["lastSuccessAt"] = self.now_iso
+                    self.log(f"[{key}] PARTIAL — fetched {fetched} year(s), {remaining} left for the next run, latest {latest}")
+                else:
+                    self.statuses[key] = status_entry("ok", None, self.prev_status(key), self.now_iso, latest)
+                    self.log(f"[{key}] OK — fetched {fetched} year(s), latest {latest}")
             except Exception as exc:  # keep previous files
                 message = str(exc)
                 self.statuses[key] = status_entry("error", message, self.prev_status(key), self.now_iso)
@@ -1289,22 +1344,45 @@ class ExtendedUpdater:
 
     # -- Fiscal Data -------------------------------------------------------
     def update_fiscal(self) -> None:
+        keys = ("bills", "notes", "bonds", "tips", "frn", "otherMarketable", "marketable", "nonmarketable", "total")
         try:
+            # Incremental: refetch only the recent window once history is saved.
+            saved_ceiling = load_json(self.data_dir / "debt" / "ceiling.json")
+            saved_mspd = load_json(self.data_dir / "debt" / "maturities.json")
+            limits: Dict[str, Dict[str, Optional[float]]] = {}
+            cash: Dict[str, float] = {}
+            composition: Dict[str, Dict[str, float]] = {}
+            dts_since = mspd_since = None
+            if isinstance(saved_ceiling, dict) and saved_ceiling.get("dates"):
+                for i, d in enumerate(saved_ceiling["dates"]):
+                    limits[d] = {
+                        "subject": saved_ceiling["debtSubjectToLimit"][i],
+                        "limit": saved_ceiling["statutoryLimit"][i],
+                        "outstanding": saved_ceiling["totalOutstanding"][i],
+                    }
+                    if saved_ceiling["cashBalance"][i] is not None:
+                        cash[d] = saved_ceiling["cashBalance"][i]
+                dts_since = (to_date(saved_ceiling["dates"][-1]) - datetime.timedelta(days=45)).isoformat()
+            if isinstance(saved_mspd, dict) and saved_mspd.get("dates"):
+                for i, d in enumerate(saved_mspd["dates"]):
+                    composition[d] = {k: (saved_mspd.get(k) or [0] * (i + 1))[i] or 0 for k in keys}
+                mspd_since = (to_date(saved_mspd["dates"][-1]) - datetime.timedelta(days=120)).isoformat()
+
             cash_rows = fetch_fiscal_rows(
                 self.fetcher, "/v1/accounting/dts/operating_cash_balance",
-                ["record_date", "account_type", "close_today_bal", "open_today_bal"],
+                ["record_date", "account_type", "close_today_bal", "open_today_bal"], since=dts_since,
             )
             limit_rows = fetch_fiscal_rows(
                 self.fetcher, "/v1/accounting/dts/debt_subject_to_limit",
-                ["record_date", "debt_catg", "close_today_bal"],
+                ["record_date", "debt_catg", "close_today_bal"], since=dts_since,
             )
             mspd_rows = fetch_fiscal_rows(
                 self.fetcher, "/v1/debt/mspd/mspd_table_1",
-                ["record_date", "security_type_desc", "security_class_desc", "total_mil_amt"],
+                ["record_date", "security_type_desc", "security_class_desc", "total_mil_amt"], since=mspd_since,
             )
-            cash = extract_operating_cash(cash_rows)
-            limits = extract_debt_limit(limit_rows)
-            composition = extract_mspd_composition(mspd_rows)
+            limits.update(extract_debt_limit(limit_rows))
+            cash.update(extract_operating_cash(cash_rows))
+            composition.update(extract_mspd_composition(mspd_rows))
             if not limits or not composition:
                 raise DataSourceError("Fiscal Data returned no debt limit or MSPD rows")
 
@@ -1320,7 +1398,6 @@ class ExtendedUpdater:
                 "cashBalance": [round_or_none(cash.get(d), 0) for d in dates],
             }
             months = sorted(composition)
-            keys = ("bills", "notes", "bonds", "tips", "frn", "otherMarketable", "marketable", "nonmarketable", "total")
             maturities = {
                 "unit": "USD millions",
                 "source": "Monthly Statement of the Public Debt, table 1 (Fiscal Data API)",
@@ -1463,6 +1540,10 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR, help="Output data directory")
     parser.add_argument("--timeout", type=float, default=30.0, help="HTTP timeout in seconds")
     parser.add_argument("--retries", type=int, default=3, help="HTTP attempts per request")
+    parser.add_argument(
+        "--backfill-minutes", type=float, default=12.0,
+        help="Time budget for fetching missing Treasury history; the rest continues next run (default: 12)",
+    )
     args = parser.parse_args(argv)
 
     api_key = os.environ.get("FRED_API_KEY", "").strip() or None
@@ -1477,7 +1558,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         today=datetime.datetime.now(datetime.timezone.utc).date(),
         now_iso=core.utc_now_iso(),
         fred_api_key=api_key,
-        log=lambda msg: print(redact(msg, api_key)),
+        log=lambda msg: print(redact(msg, api_key), flush=True),
+        backfill_seconds=args.backfill_minutes * 60,
     )
     try:
         manifest = updater.run()
