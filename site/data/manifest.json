@@ -1,0 +1,539 @@
+{
+  "schemaVersion": "2.0",
+  "updatedAt": "2026-10-15T15:33:28Z",
+  "fredKeyConfigured": false,
+  "sources": {
+    "treasuryNominal": {
+      "name": "U.S. Treasury — Daily Par Yield Curve Rates (1990–present)",
+      "shortName": "Treasury curve",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+      "docsUrl": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed",
+      "status": "ok",
+      "errorMessage": null,
+      "lastSuccessAt": "2026-10-15T15:33:28Z",
+      "latestObservationDate": "2026-10-14"
+    },
+    "treasuryReal": {
+      "name": "U.S. Treasury — Daily Par Real Yield Curve Rates (TIPS, 2003–present)",
+      "shortName": "Treasury real",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve",
+      "docsUrl": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed",
+      "status": "ok",
+      "errorMessage": null,
+      "lastSuccessAt": "2026-10-15T15:33:28Z",
+      "latestObservationDate": "2026-10-14"
+    },
+    "fred": {
+      "name": "FRED / ALFRED, Federal Reserve Bank of St. Louis",
+      "shortName": "FRED",
+      "url": "https://fred.stlouisfed.org/",
+      "docsUrl": "https://fred.stlouisfed.org/docs/api/fred/",
+      "status": "missing_key",
+      "errorMessage": "FRED_API_KEY is not configured; FRED-based data was not refreshed.",
+      "lastSuccessAt": null,
+      "latestObservationDate": null
+    },
+    "fiscal": {
+      "name": "U.S. Treasury Fiscal Data — Daily Treasury Statement & Monthly Statement of the Public Debt",
+      "shortName": "Fiscal Data",
+      "url": "https://fiscaldata.treasury.gov/",
+      "docsUrl": "https://fiscaldata.treasury.gov/api-documentation/",
+      "status": "ok",
+      "errorMessage": null,
+      "lastSuccessAt": "2026-10-15T15:33:28Z",
+      "latestObservationDate": "2026-10-13"
+    }
+  },
+  "curve": {
+    "firstDate": "1990-01-02",
+    "lastDate": "2026-10-14",
+    "years": {
+      "1990": {
+        "first": "1990-01-02",
+        "last": "1990-12-31",
+        "count": 250,
+        "source": "treasury"
+      },
+      "1991": {
+        "first": "1991-01-02",
+        "last": "1991-12-31",
+        "count": 250,
+        "source": "treasury"
+      },
+      "1992": {
+        "first": "1992-01-02",
+        "last": "1992-12-31",
+        "count": 251,
+        "source": "treasury"
+      },
+      "1993": {
+        "first": "1993-01-04",
+        "last": "1993-12-31",
+        "count": 250,
+        "source": "treasury"
+      },
+      "1994": {
+        "first": "1994-01-03",
+        "last": "1994-12-30",
+        "count": 249,
+        "source": "treasury"
+      },
+      "1995": {
+        "first": "1995-01-03",
+        "last": "1995-12-29",
+        "count": 250,
+        "source": "treasury"
+      },
+      "1996": {
+        "first": "1996-01-02",
+        "last": "1996-12-31",
+        "count": 252,
+        "source": "treasury"
+      },
+      "1997": {
+        "first": "1997-01-02",
+        "last": "1997-12-31",
+        "count": 250,
+        "source": "treasury"
+      },
+      "1998": {
+        "first": "1998-01-02",
+        "last": "1998-12-31",
+        "count": 250,
+        "source": "treasury"
+      },
+      "1999": {
+        "first": "1999-01-04",
+        "last": "1999-12-31",
+        "count": 251,
+        "source": "treasury"
+      },
+      "2000": {
+        "first": "2000-01-03",
+        "last": "2000-12-29",
+        "count": 251,
+        "source": "treasury"
+      },
+      "2001": {
+        "first": "2001-01-02",
+        "last": "2001-12-31",
+        "count": 248,
+        "source": "treasury"
+      },
+      "2002": {
+        "first": "2002-01-02",
+        "last": "2002-12-31",
+        "count": 250,
+        "source": "treasury"
+      },
+      "2003": {
+        "first": "2003-01-02",
+        "last": "2003-12-31",
+        "count": 250,
+        "source": "treasury"
+      },
+      "2004": {
+        "first": "2004-01-02",
+        "last": "2004-12-31",
+        "count": 250,
+        "source": "treasury"
+      },
+      "2005": {
+        "first": "2005-01-03",
+        "last": "2005-12-30",
+        "count": 250,
+        "source": "treasury"
+      },
+      "2006": {
+        "first": "2006-01-03",
+        "last": "2006-12-29",
+        "count": 250,
+        "source": "treasury"
+      },
+      "2007": {
+        "first": "2007-01-02",
+        "last": "2007-12-31",
+        "count": 251,
+        "source": "treasury"
+      },
+      "2008": {
+        "first": "2008-01-02",
+        "last": "2008-12-31",
+        "count": 251,
+        "source": "treasury"
+      },
+      "2009": {
+        "first": "2009-01-02",
+        "last": "2009-12-31",
+        "count": 250,
+        "source": "treasury"
+      },
+      "2010": {
+        "first": "2010-01-04",
+        "last": "2010-12-31",
+        "count": 251,
+        "source": "treasury"
+      },
+      "2011": {
+        "first": "2011-01-03",
+        "last": "2011-12-30",
+        "count": 250,
+        "source": "treasury"
+      },
+      "2012": {
+        "first": "2012-01-03",
+        "last": "2012-12-31",
+        "count": 250,
+        "source": "treasury"
+      },
+      "2013": {
+        "first": "2013-01-02",
+        "last": "2013-12-31",
+        "count": 250,
+        "source": "treasury"
+      },
+      "2014": {
+        "first": "2014-01-02",
+        "last": "2014-12-31",
+        "count": 250,
+        "source": "treasury"
+      },
+      "2015": {
+        "first": "2015-01-02",
+        "last": "2015-12-31",
+        "count": 251,
+        "source": "treasury"
+      },
+      "2016": {
+        "first": "2016-01-04",
+        "last": "2016-12-30",
+        "count": 250,
+        "source": "treasury"
+      },
+      "2017": {
+        "first": "2017-01-03",
+        "last": "2017-12-29",
+        "count": 250,
+        "source": "treasury"
+      },
+      "2018": {
+        "first": "2018-01-02",
+        "last": "2018-12-31",
+        "count": 249,
+        "source": "treasury"
+      },
+      "2019": {
+        "first": "2019-01-02",
+        "last": "2019-12-31",
+        "count": 250,
+        "source": "treasury"
+      },
+      "2020": {
+        "first": "2020-01-02",
+        "last": "2020-12-31",
+        "count": 251,
+        "source": "treasury"
+      },
+      "2021": {
+        "first": "2021-01-04",
+        "last": "2021-12-31",
+        "count": 251,
+        "source": "treasury"
+      },
+      "2022": {
+        "first": "2022-01-03",
+        "last": "2022-12-30",
+        "count": 249,
+        "source": "treasury"
+      },
+      "2023": {
+        "first": "2023-01-03",
+        "last": "2023-12-29",
+        "count": 250,
+        "source": "treasury"
+      },
+      "2024": {
+        "first": "2024-01-02",
+        "last": "2024-12-31",
+        "count": 250,
+        "source": "treasury"
+      },
+      "2025": {
+        "first": "2025-01-02",
+        "last": "2025-12-31",
+        "count": 249,
+        "source": "treasury"
+      },
+      "2026": {
+        "first": "2026-01-02",
+        "last": "2026-10-14",
+        "count": 197,
+        "source": "treasury"
+      }
+    },
+    "nominalKeys": [
+      "1M",
+      "6W",
+      "2M",
+      "3M",
+      "4M",
+      "6M",
+      "1Y",
+      "2Y",
+      "3Y",
+      "5Y",
+      "7Y",
+      "10Y",
+      "20Y",
+      "30Y"
+    ],
+    "realKeys": [
+      "5Y",
+      "7Y",
+      "10Y",
+      "20Y",
+      "30Y"
+    ],
+    "pre1990Version": null
+  },
+  "series": {
+    "TIPS10Y": {
+      "label": "10Y TIPS real yield",
+      "group": "tips",
+      "order": 22,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury (real yield curve)",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve",
+      "first": "2003-01-02",
+      "last": "2026-10-14",
+      "count": 5950
+    },
+    "TIPS20Y": {
+      "label": "20Y TIPS real yield",
+      "group": "tips",
+      "order": 23,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury (real yield curve)",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve",
+      "first": "2004-07-27",
+      "last": "2026-10-14",
+      "count": 5559
+    },
+    "TIPS30Y": {
+      "label": "30Y TIPS real yield",
+      "group": "tips",
+      "order": 24,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury (real yield curve)",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve",
+      "first": "2010-02-22",
+      "last": "2026-10-14",
+      "count": 4165
+    },
+    "TIPS5Y": {
+      "label": "5Y TIPS real yield",
+      "group": "tips",
+      "order": 20,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury (real yield curve)",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve",
+      "first": "2003-01-02",
+      "last": "2026-10-14",
+      "count": 5950
+    },
+    "TIPS7Y": {
+      "label": "7Y TIPS real yield",
+      "group": "tips",
+      "order": 21,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury (real yield curve)",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve",
+      "first": "2003-01-02",
+      "last": "2026-10-14",
+      "count": 5950
+    },
+    "UST10Y": {
+      "label": "10-Year Treasury",
+      "group": "yields",
+      "order": 11,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury / FRED",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+      "first": "1990-01-02",
+      "last": "2026-10-14",
+      "count": 9202
+    },
+    "UST1M": {
+      "label": "1-Month Treasury",
+      "group": "yields",
+      "order": 0,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury / FRED",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+      "first": "2001-07-31",
+      "last": "2026-10-14",
+      "count": 6303
+    },
+    "UST1Y": {
+      "label": "1-Year Treasury",
+      "group": "yields",
+      "order": 6,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury / FRED",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+      "first": "1990-01-02",
+      "last": "2026-10-14",
+      "count": 9202
+    },
+    "UST20Y": {
+      "label": "20-Year Treasury",
+      "group": "yields",
+      "order": 12,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury / FRED",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+      "first": "1993-10-01",
+      "last": "2026-10-14",
+      "count": 8263
+    },
+    "UST2M": {
+      "label": "2-Month Treasury",
+      "group": "yields",
+      "order": 2,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury / FRED",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+      "first": "2018-10-16",
+      "last": "2026-10-14",
+      "count": 1998
+    },
+    "UST2Y": {
+      "label": "2-Year Treasury",
+      "group": "yields",
+      "order": 7,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury / FRED",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+      "first": "1990-01-02",
+      "last": "2026-10-14",
+      "count": 9202
+    },
+    "UST30Y": {
+      "label": "30-Year Treasury",
+      "group": "yields",
+      "order": 13,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury / FRED",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+      "first": "1990-01-02",
+      "last": "2026-10-14",
+      "count": 8208
+    },
+    "UST3M": {
+      "label": "3-Month Treasury",
+      "group": "yields",
+      "order": 3,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury / FRED",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+      "first": "1990-01-02",
+      "last": "2026-10-14",
+      "count": 9199
+    },
+    "UST3Y": {
+      "label": "3-Year Treasury",
+      "group": "yields",
+      "order": 8,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury / FRED",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+      "first": "1990-01-02",
+      "last": "2026-10-14",
+      "count": 9202
+    },
+    "UST4M": {
+      "label": "4-Month Treasury",
+      "group": "yields",
+      "order": 4,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury / FRED",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+      "first": "2022-10-19",
+      "last": "2026-10-14",
+      "count": 996
+    },
+    "UST5Y": {
+      "label": "5-Year Treasury",
+      "group": "yields",
+      "order": 9,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury / FRED",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+      "first": "1990-01-02",
+      "last": "2026-10-14",
+      "count": 9202
+    },
+    "UST6M": {
+      "label": "6-Month Treasury",
+      "group": "yields",
+      "order": 5,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury / FRED",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+      "first": "1990-01-02",
+      "last": "2026-10-14",
+      "count": 9202
+    },
+    "UST6W": {
+      "label": "6-Week Treasury",
+      "group": "yields",
+      "order": 1,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury / FRED",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+      "first": "2025-02-18",
+      "last": "2026-10-14",
+      "count": 415
+    },
+    "UST7Y": {
+      "label": "7-Year Treasury",
+      "group": "yields",
+      "order": 10,
+      "frequency": "daily",
+      "unit": "%",
+      "source": "U.S. Treasury / FRED",
+      "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+      "first": "1990-01-02",
+      "last": "2026-10-14",
+      "count": 9202
+    }
+  },
+  "indicators": [],
+  "events": [],
+  "files": {
+    "curve": "curve/{year}.json",
+    "series": "series/{id}.json",
+    "recessions": "recessions.json",
+    "revisions": "revisions.json",
+    "debtCeiling": "debt/ceiling.json",
+    "debtMaturities": "debt/maturities.json"
+  }
+}

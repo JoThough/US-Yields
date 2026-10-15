@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": "2026-10-15T03:55:11Z",
-  "lastCheckedAt": "2026-10-15T03:55:11Z",
+  "updatedAt": "2026-10-15T15:32:33Z",
+  "lastCheckedAt": "2026-10-15T15:32:33Z",
   "historyYears": [
     2024,
     2025,
@@ -22,8 +22,8 @@
       ],
       "status": "ok",
       "errorMessage": null,
-      "lastCheckedAt": "2026-10-15T03:55:11Z",
-      "lastSuccessAt": "2026-10-15T03:55:11Z",
+      "lastCheckedAt": "2026-10-15T15:32:33Z",
+      "lastSuccessAt": "2026-10-15T15:32:33Z",
       "latestObservationDate": "2026-10-14",
       "observationCount": 696,
       "maturities": [
@@ -13377,10 +13377,10 @@
       "fetchedUrl": "https://markets.newyorkfed.org/api/rates/unsecured/effr/search.json?startDate=2026-08-31&endDate=2026-10-15",
       "status": "ok",
       "errorMessage": null,
-      "lastCheckedAt": "2026-10-15T03:55:11Z",
-      "lastSuccessAt": "2026-10-15T03:55:11Z",
-      "latestObservationDate": "2026-10-13",
-      "observationCount": 698,
+      "lastCheckedAt": "2026-10-15T15:32:33Z",
+      "lastSuccessAt": "2026-10-15T15:32:33Z",
+      "latestObservationDate": "2026-10-14",
+      "observationCount": 699,
       "observations": [
         {
           "date": "2024-01-02",
@@ -21757,6 +21757,18 @@
           "revisionIndicator": "",
           "targetRateFrom": 3.75,
           "targetRateTo": 4.0
+        },
+        {
+          "date": "2026-10-14",
+          "rate": 3.88,
+          "percentile1": 3.8,
+          "percentile25": 3.87,
+          "percentile75": 3.88,
+          "percentile99": 3.89,
+          "volumeInBillions": 111.0,
+          "revisionIndicator": "",
+          "targetRateFrom": 3.75,
+          "targetRateTo": 4.0
         }
       ]
     },
@@ -21770,10 +21782,10 @@
       "fetchedUrl": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-08-31&endDate=2026-10-15",
       "status": "ok",
       "errorMessage": null,
-      "lastCheckedAt": "2026-10-15T03:55:11Z",
-      "lastSuccessAt": "2026-10-15T03:55:11Z",
-      "latestObservationDate": "2026-10-13",
-      "observationCount": 694,
+      "lastCheckedAt": "2026-10-15T15:32:33Z",
+      "lastSuccessAt": "2026-10-15T15:32:33Z",
+      "latestObservationDate": "2026-10-14",
+      "observationCount": 695,
       "observations": [
         {
           "date": "2024-01-02",
@@ -28713,6 +28725,16 @@
           "percentile75": 3.94,
           "percentile99": 3.98,
           "volumeInBillions": 3000.0,
+          "revisionIndicator": ""
+        },
+        {
+          "date": "2026-10-14",
+          "rate": 3.88,
+          "percentile1": 3.83,
+          "percentile25": 3.86,
+          "percentile75": 3.93,
+          "percentile99": 3.97,
+          "volumeInBillions": 2974.0,
           "revisionIndicator": ""
         }
       ]
