@@ -406,8 +406,14 @@ class TestFiscalData(unittest.TestCase):
         self.assertEqual(limits["2026-10-13"]["limit"], 41103996)
         self.assertEqual(limits["2026-10-13"]["limit"] - limits["2026-10-13"]["subject"], 958528)
         self.assertEqual(limits["2026-10-13"]["outstanding"], 40343879)
-        # Suspended limit: no statutory limit row.
+        # Suspended limit: no statutory limit row, or a row showing 0.
         self.assertIsNone(limits["2020-06-01"]["limit"])
+        zero = ext.extract_debt_limit([
+            {"record_date": "2024-03-01", "debt_catg": "Debt Held by the Public", "close_today_bal": "27000000"},
+            {"record_date": "2024-03-01", "debt_catg": "Intragovernmental Holdings", "close_today_bal": "7000000"},
+            {"record_date": "2024-03-01", "debt_catg": "Statutory Debt Limit", "close_today_bal": "0"},
+        ])
+        self.assertIsNone(zero["2024-03-01"]["limit"])
         self.assertEqual(limits["2020-06-01"]["subject"], 19868880 + 5882590 - 29637)
 
     def test_mspd_composition_mapping(self) -> None:
