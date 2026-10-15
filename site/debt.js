@@ -55,7 +55,8 @@
         C.data = raw;
         C.series = {
           subject: toSeries(raw.dates, raw.debtSubjectToLimit),
-          limit: toSeries(raw.dates, raw.statutoryLimit),
+          // 0 or missing means the limit was suspended: leave a gap in the line.
+          limit: toSeries(raw.dates, raw.statutoryLimit.map((v) => (isNum(v) && v > 0 ? v : null))),
           net: toSeries(
             raw.dates,
             raw.dates.map((_d, i) => (isNum(raw.debtSubjectToLimit[i]) && isNum(raw.cashBalance[i]) ? raw.debtSubjectToLimit[i] - raw.cashBalance[i] : null))
@@ -74,7 +75,7 @@
     const last = raw.dates.length - 1;
     const date = raw.dates[last];
     const subject = raw.debtSubjectToLimit[last];
-    const limit = raw.statutoryLimit[last];
+    const limit = isNum(raw.statutoryLimit[last]) && raw.statutoryLimit[last] > 0 ? raw.statutoryLimit[last] : null;
     const cash = raw.cashBalance[last];
     const headroom = isNum(limit) && isNum(subject) ? limit - subject : null;
     const withCash = isNum(headroom) && isNum(cash) ? headroom + cash : null;

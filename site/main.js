@@ -103,12 +103,29 @@
       menu.hidden = true;
       toggle.setAttribute("aria-expanded", "false");
     };
+    // Keep the open menu inside the window when the tab sits near the right edge.
+    const fitToViewport = () => {
+      menu.style.left = "";
+      const rect = menu.getBoundingClientRect();
+      const margin = 8;
+      const width = document.documentElement.clientWidth;
+      let shift = 0;
+      if (rect.right > width - margin) shift = width - margin - rect.right;
+      if (rect.left + shift < margin) shift = margin - rect.left;
+      if (shift) menu.style.left = `${Math.round(shift)}px`;
+    };
     toggle.addEventListener("click", (ev) => {
       ev.stopPropagation();
       const open = menu.hidden;
       menu.hidden = !open;
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
-      if (open) menu.querySelector("a")?.focus();
+      if (open) {
+        fitToViewport();
+        menu.querySelector("a")?.focus();
+      }
+    });
+    window.addEventListener("resize", () => {
+      if (!menu.hidden) fitToViewport();
     });
     menu.addEventListener("click", close);
     document.addEventListener("click", (ev) => {
