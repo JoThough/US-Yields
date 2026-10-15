@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0",
-  "updatedAt": "2026-10-15T15:33:28Z",
+  "updatedAt": "2026-10-15T15:53:30Z",
   "fredKeyConfigured": false,
   "sources": {
     "treasuryNominal": {
@@ -10,7 +10,7 @@
       "docsUrl": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-15T15:33:28Z",
+      "lastSuccessAt": "2026-10-15T15:53:30Z",
       "latestObservationDate": "2026-10-14"
     },
     "treasuryReal": {
@@ -20,7 +20,7 @@
       "docsUrl": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-15T15:33:28Z",
+      "lastSuccessAt": "2026-10-15T15:53:30Z",
       "latestObservationDate": "2026-10-14"
     },
     "fred": {
@@ -40,7 +40,7 @@
       "docsUrl": "https://fiscaldata.treasury.gov/api-documentation/",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-15T15:33:28Z",
+      "lastSuccessAt": "2026-10-15T15:53:30Z",
       "latestObservationDate": "2026-10-13"
     }
   },
