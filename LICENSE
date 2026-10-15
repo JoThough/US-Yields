@@ -1,0 +1,38 @@
+MIT License
+
+Copyright (c) 2026 Yields Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+Data Attribution and Provider Terms Notice:
+
+The MIT License above applies to the original software, scripts, stylesheets,
+and documentation in this repository. Official interest rate data downloaded
+and displayed by this project originates from public U.S. government and
+Federal Reserve sources and remains subject to each provider's terms of use:
+
+1. U.S. Department of the Treasury — Daily Treasury Par Yield Curve Rates
+   - Feed Documentation: https://home.treasury.gov/treasury-daily-interest-rate-xml-feed
+   - Data Center: https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve
+
+2. Federal Reserve Bank of New York — EFFR & SOFR Reference Rates
+   - Markets Data API Documentation: https://markets.newyorkfed.org/static/docs/markets-api.html
+   - Terms of Use for NY Fed Reference Rates & APIs: https://www.newyorkfed.org/markets/data-api-intangibles/terms-of-use
