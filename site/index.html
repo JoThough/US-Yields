@@ -116,17 +116,18 @@
           <div class="side-card">
             <h2 class="side-title">Upcoming Events</h2>
             <ul id="events-list" class="events-list"><li class="muted">Loading…</li></ul>
+            <p id="events-note" class="side-note"></p>
           </div>
           <div class="side-card">
-            <h2 class="side-title">Macro Indicators</h2>
+            <h2 class="side-title">Latest Economic Data</h2>
             <dl id="indicators-list" class="indicators-list"><div class="muted">Loading…</div></dl>
           </div>
           <div class="side-card">
-            <h2 class="side-title">Rate Expectations</h2>
-            <p class="side-text">
-              Market-implied odds of future Fed decisions are published by the
-              <a href="https://www.atlantafed.org/cenfis/market-probability-tracker" target="_blank" rel="noopener noreferrer">Atlanta Fed Market Probability Tracker</a>
-              and <a href="https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html" target="_blank" rel="noopener noreferrer">CME FedWatch</a>.
+            <h2 class="side-title">Fed Policy</h2>
+            <dl id="fed-policy" class="indicators-list"><div class="muted">Loading…</div></dl>
+            <p class="side-note">
+              Market odds for the next move:
+              <a href="https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html" target="_blank" rel="noopener noreferrer">CME FedWatch</a>
             </p>
           </div>
         </aside>
@@ -690,10 +691,11 @@
         </article>
         <article class="info-card">
           <h3 class="info-card-title">Policy rates</h3>
-          <p class="info-card-text">Federal funds target range (DFEDTARL, DFEDTARU; DFEDTAR before December 2008), the effective federal funds rate (DFF) and the overnight reverse repo award rate (RRPONTSYAWARD), from FRED. EFFR and SOFR on the Rates Dashboard come directly from the New York Fed.</p>
+          <p class="info-card-text">Federal funds target range (DFEDTARL, DFEDTARU; DFEDTAR before December 2008), the effective federal funds rate (DFF) and the overnight reverse repo award rate (RRPONTSYAWARD), from FRED. EFFR and SOFR on the Rates Dashboard and in the Fed Policy card come directly from the New York Fed. FOMC meeting dates come from the Federal Reserve's meeting calendar; minutes are released three weeks after each decision.</p>
           <ul class="info-links">
             <li><a href="https://fred.stlouisfed.org/series/DFEDTARU" target="_blank" rel="noopener noreferrer">FRED: Federal funds target range</a></li>
             <li><a href="https://markets.newyorkfed.org/static/docs/markets-api.html" target="_blank" rel="noopener noreferrer">New York Fed Markets Data API</a></li>
+            <li><a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm" target="_blank" rel="noopener noreferrer">FOMC meeting calendar</a></li>
           </ul>
         </article>
         <article class="info-card">
@@ -740,6 +742,7 @@
 
   <script src="./core.js" defer></script>
   <script src="./app.js" defer></script>
+  <script src="./sidebar.js" defer></script>
   <script src="./curve.js" defer></script>
   <script src="./timeseries.js" defer></script>
   <script src="./debt.js" defer></script>

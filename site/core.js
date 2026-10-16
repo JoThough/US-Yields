@@ -177,6 +177,73 @@
   Y.dates = { DAY_MS, toMs, fromMs, addDays, addMonths, todayIso, lowerBound, floorIndex };
 
   /* ------------------------------------------------------------------------
+   * Release times: official U.S. Eastern times shown in the visitor's zone
+   * ---------------------------------------------------------------------- */
+
+  /** U.S. Eastern offset from UTC on a date: -4 from the second Sunday of March to the first Sunday of November, else -5. */
+  function easternOffset(y, m, d) {
+    const sunday = (month, nth) => {
+      const firstWeekday = new Date(Date.UTC(y, month - 1, 1)).getUTCDay();
+      return 1 + ((7 - firstWeekday) % 7) + (nth - 1) * 7;
+    };
+    const day = Date.UTC(y, m - 1, d);
+    return day >= Date.UTC(y, 2, sunday(3, 2)) && day < Date.UTC(y, 10, sunday(11, 1)) ? -4 : -5;
+  }
+
+  /** The instant of an Eastern wall-clock time, e.g. ("2026-10-28", "14:00"). */
+  function easternToDate(iso, hhmm) {
+    const { y, m, d } = parseIso(iso);
+    const [hh, mm] = String(hhmm || "00:00").split(":").map(Number);
+    return new Date(Date.UTC(y, m - 1, d, (hh || 0) - easternOffset(y, m, d), mm || 0));
+  }
+
+  /** "Thu, Oct 29" in the visitor's time zone. */
+  function localDay(date) {
+    return date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+  }
+
+  /** "Thu" in the visitor's time zone. */
+  function localWeekday(date) {
+    return date.toLocaleDateString("en-US", { weekday: "short" });
+  }
+
+  /** "2:00 am" in the visitor's time zone. */
+  function localTime(date) {
+    return date
+      .toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+      .replace(/\s*([AP])M$/i, (_m, p) => ` ${p.toLowerCase()}m`);
+  }
+
+  /** Short name of the visitor's time zone, e.g. "GMT+8" or "EDT". */
+  function localZone(date = new Date()) {
+    try {
+      const part = new Intl.DateTimeFormat("en-US", { timeZoneName: "short" })
+        .formatToParts(date)
+        .find((p) => p.type === "timeZoneName");
+      return part ? part.value : "";
+    } catch (_) {
+      return "";
+    }
+  }
+
+  /** "in 5 hours", "tomorrow", "in 12 days" (calendar days in the visitor's zone). */
+  function countdown(date, nowMs = Date.now()) {
+    const diff = date.getTime() - nowMs;
+    if (diff <= 0) return "now";
+    const minutes = Math.round(diff / 60000);
+    if (minutes < 60) return `in ${Math.max(1, minutes)} min`;
+    const hours = Math.round(diff / 3600000);
+    if (hours < 24) return `in ${hours} hour${hours === 1 ? "" : "s"}`;
+    const now = new Date(nowMs);
+    const days = Math.round(
+      (Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) - Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())) / DAY_MS
+    );
+    return days <= 1 ? "tomorrow" : `in ${days} days`;
+  }
+
+  Y.time = { easternToDate, localDay, localWeekday, localTime, localZone, countdown };
+
+  /* ------------------------------------------------------------------------
    * Data loading (relative URLs so the site works under any path)
    * ---------------------------------------------------------------------- */
 

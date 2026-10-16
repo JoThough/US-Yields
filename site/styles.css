@@ -1141,7 +1141,7 @@ a:hover {
 }
 
 .view-layout.with-sidebar {
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: 290px minmax(0, 1fr);
 }
 
 .view-layout.with-picker {
@@ -1184,69 +1184,151 @@ a:hover {
 .events-list {
   list-style: none;
   margin: 0;
-  padding: 0.35rem 0;
+  padding: 0.3rem 0;
 }
 
-.events-list li {
-  padding: 0.35rem 0.85rem;
+.events-list > .muted,
+.indicators-list > .muted {
+  padding: 0.4rem 0.85rem;
   font-size: 0.85rem;
 }
 
+/* One event: a date chip, then the title and its local time with a countdown. */
 .event-row {
   display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.4rem 0.85rem;
 }
 
-.event-row a {
+.event-date {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  padding: 0.15rem 0 0.2rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-surface-subtle);
+  line-height: 1.15;
+}
+
+.event-month {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.event-day {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fed rate decisions move markets most: a quiet accent on their date chip. */
+.event-fed .event-date {
+  border-color: var(--nav-active);
+}
+
+.event-fed .event-month {
+  color: var(--nav-active);
+}
+
+.event-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.event-title {
+  font-size: 0.85rem;
+  font-weight: 600;
   color: var(--text-primary);
   text-decoration: none;
 }
 
-.event-row a:hover {
+.event-title:hover {
   text-decoration: underline;
 }
 
-.event-row time {
+.event-meta {
+  font-size: 0.75rem;
   color: var(--text-secondary);
-  white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
-.event-next a,
-.event-next time {
-  color: var(--negative-text);
-  font-weight: 700;
-}
-
+/* Indicator and Fed policy rows: label over its detail, value over the change. */
 .indicators-list {
   margin: 0;
-  padding: 0.35rem 0;
-}
-
-.indicators-list > .muted,
-.events-list .muted {
-  padding: 0.35rem 0.85rem;
-  font-size: 0.85rem;
+  padding: 0.3rem 0;
 }
 
 .indicator-row {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  gap: 0.5rem;
-  padding: 0.35rem 0.85rem;
-  font-size: 0.85rem;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.4rem 0.85rem;
+}
+
+.indicator-row + .indicator-row {
+  border-top: 1px solid var(--border-color);
 }
 
 .indicator-row dt {
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .indicator-row dd {
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  flex: 0 0 auto;
+}
+
+.ind-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.ind-meta,
+.ind-change {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.ind-value {
+  font-size: 0.95rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ind-change {
+  white-space: nowrap;
+}
+
+.side-note {
+  margin: 0;
+  padding: 0.45rem 0.85rem 0.55rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+}
+
+.side-note:empty {
+  display: none;
 }
 
 .side-text {

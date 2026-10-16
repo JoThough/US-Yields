@@ -73,7 +73,7 @@
       const src = rates?.sources?.[key];
       if (src) add(src.name, src.sourcePageUrl || src.documentationUrl, src.status, src.latestObservationDate, src.lastSuccessAt, key === "treasury" ? "Recent history for the Rates Dashboard" : "");
     }
-    for (const key of ["treasuryNominal", "treasuryReal", "fred", "fiscal"]) {
+    for (const key of ["treasuryNominal", "treasuryReal", "fred", "fiscal", "fedCalendar"]) {
       const src = manifest?.sources?.[key];
       if (src) add(src.name, src.url, src.status, src.latestObservationDate, src.lastSuccessAt, src.status === "missing_key" ? "Add the FRED_API_KEY repository secret to enable it." : src.errorMessage || "");
     }

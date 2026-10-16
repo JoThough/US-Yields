@@ -4,8 +4,8 @@
  * Shows the Treasury par yield curve for any date back to 1934, lets the user
  * step through dates, pin curves for comparison, and overlay the Fed funds
  * target range, the reverse repo (RRP) rate, TIPS real yields, breakeven
- * inflation and the latest CPI reading known on that date. Also renders the
- * sidebar (upcoming events and macro indicators).
+ * inflation and the latest CPI reading known on that date. The sidebar next to
+ * the chart is drawn by sidebar.js.
  */
 (function () {
   "use strict";
@@ -216,29 +216,7 @@
   /* ---------------------------------------------------------------------- */
 
   function renderSidebar() {
-    const eventsEl = $("events-list");
-    const indicatorsEl = $("indicators-list");
-    const events = S.manifest?.events || [];
-    const today = Y.dates.todayIso();
-    if (eventsEl) {
-      eventsEl.innerHTML = events.length
-        ? events
-            .slice(0, 8)
-            .map((e, i) => {
-              const soon = i === 0 || e.date === today;
-              return `<li class="event-row${soon ? " event-next" : ""}"><a href="${esc(e.url)}" target="_blank" rel="noopener noreferrer">${esc(e.label)}</a><time datetime="${esc(e.date)}">${esc(fmtDate(e.date, "weekday"))}</time></li>`;
-            })
-            .join("")
-        : `<li class="muted">${S.manifest && !S.manifest.fredKeyConfigured ? "Release calendar needs the FRED API key." : "No scheduled releases found."}</li>`;
-    }
-    if (indicatorsEl) {
-      const items = S.manifest?.indicators || [];
-      indicatorsEl.innerHTML = items.length
-        ? items
-            .map((item) => `<div class="indicator-row"><dt>${esc(item.label)} <span class="muted">(${esc(item.periodLabel)})</span></dt><dd>${esc(pct(item.value, 1))}</dd></div>`)
-            .join("")
-        : `<div class="muted">${S.manifest && !S.manifest.fredKeyConfigured ? "Indicators need the FRED API key." : "Indicators unavailable."}</div>`;
-    }
+    if (Y.sidebar) Y.sidebar.render(S.manifest);
   }
 
   function syncControls() {
