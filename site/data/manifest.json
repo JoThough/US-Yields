@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "2.0",
-  "updatedAt": "2026-10-16T15:44:39Z",
+  "schemaVersion": "2.1",
+  "updatedAt": "2026-10-16T15:48:47Z",
   "fredKeyConfigured": true,
   "sources": {
     "treasuryNominal": {
@@ -10,7 +10,7 @@
       "docsUrl": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-16T15:44:39Z",
+      "lastSuccessAt": "2026-10-16T15:48:47Z",
       "latestObservationDate": "2026-10-15"
     },
     "treasuryReal": {
@@ -20,7 +20,7 @@
       "docsUrl": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-16T15:44:39Z",
+      "lastSuccessAt": "2026-10-16T15:48:47Z",
       "latestObservationDate": "2026-10-15"
     },
     "fred": {
@@ -30,9 +30,9 @@
       "docsUrl": "https://fred.stlouisfed.org/docs/api/fred/",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-16T15:44:39Z",
+      "lastSuccessAt": "2026-10-16T15:48:47Z",
       "latestObservationDate": "2026-10-16",
-      "requests": 32
+      "requests": 30
     },
     "fiscal": {
       "name": "U.S. Treasury Fiscal Data — Daily Treasury Statement & Monthly Statement of the Public Debt",
@@ -41,8 +41,18 @@
       "docsUrl": "https://fiscaldata.treasury.gov/api-documentation/",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-16T15:44:39Z",
+      "lastSuccessAt": "2026-10-16T15:48:47Z",
       "latestObservationDate": "2026-10-14"
+    },
+    "fedCalendar": {
+      "name": "Federal Reserve — FOMC meeting calendar",
+      "shortName": "FOMC calendar",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "docsUrl": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "status": "ok",
+      "errorMessage": null,
+      "lastSuccessAt": "2026-10-16T15:48:47Z",
+      "latestObservationDate": "2027-12-08"
     }
   },
   "curve": {
@@ -1106,876 +1116,506 @@
   "indicators": [
     {
       "id": "CPI_YOY",
-      "label": "CPI y/y",
+      "label": "CPI inflation, y/y",
+      "about": "Consumer prices compared with a year earlier (CPI-U, not seasonally adjusted)",
+      "frequency": "monthly",
       "period": "2026-09-01",
       "periodLabel": "Sep 2026",
-      "value": 3.74
+      "value": 3.738,
+      "previous": 3.397,
+      "previousPeriod": "2026-08-01",
+      "previousPeriodLabel": "Aug 2026",
+      "released": "2026-10-14"
     },
     {
       "id": "CPI_MOM",
-      "label": "CPI m/m",
+      "label": "CPI inflation, m/m",
+      "about": "Consumer prices compared with the month before (seasonally adjusted)",
+      "frequency": "monthly",
       "period": "2026-09-01",
       "periodLabel": "Sep 2026",
-      "value": 0.65
+      "value": 0.649,
+      "previous": 0.396,
+      "previousPeriod": "2026-08-01",
+      "previousPeriodLabel": "Aug 2026",
+      "released": "2026-10-14"
     },
     {
       "id": "PCE_YOY",
-      "label": "PCE y/y",
+      "label": "PCE inflation, y/y",
+      "about": "The Fed's preferred inflation gauge, compared with a year earlier",
+      "frequency": "monthly",
       "period": "2026-08-01",
       "periodLabel": "Aug 2026",
-      "value": 3.42
+      "value": 3.419,
+      "previous": 3.362,
+      "previousPeriod": "2026-07-01",
+      "previousPeriodLabel": "Jul 2026",
+      "released": "2026-09-30"
     },
     {
       "id": "PPI_YOY",
-      "label": "PPI y/y",
+      "label": "PPI inflation, y/y",
+      "about": "Producer prices for final demand, compared with a year earlier",
+      "frequency": "monthly",
       "period": "2026-09-01",
       "periodLabel": "Sep 2026",
-      "value": 6.34
+      "value": 6.338,
+      "previous": 5.613,
+      "previousPeriod": "2026-08-01",
+      "previousPeriodLabel": "Aug 2026",
+      "released": "2026-10-15"
     },
     {
       "id": "GDP",
-      "label": "Real GDP",
+      "label": "GDP growth, annualized",
+      "about": "Real GDP growth compared with the previous quarter, at an annual rate",
+      "frequency": "quarterly",
       "period": "2026-04-01",
       "periodLabel": "Q2 2026",
-      "value": 2.2
-    },
-    {
-      "id": "GDP",
-      "label": "Real GDP",
-      "period": "2026-01-01",
-      "periodLabel": "Q1 2026",
-      "value": 2.5
+      "value": 2.2,
+      "previous": 2.5,
+      "previousPeriod": "2026-01-01",
+      "previousPeriodLabel": "Q1 2026",
+      "released": "2026-09-30",
+      "revised": true
     },
     {
       "id": "UNRATE",
-      "label": "Unemployment",
+      "label": "Unemployment rate",
+      "about": "Share of the labor force without a job",
+      "frequency": "monthly",
       "period": "2026-09-01",
       "periodLabel": "Sep 2026",
-      "value": 4.2
+      "value": 4.2,
+      "previous": 4.1,
+      "previousPeriod": "2026-08-01",
+      "previousPeriodLabel": "Aug 2026",
+      "released": "2026-10-02"
     }
   ],
   "events": [
     {
-      "date": "2026-10-16",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-16",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-17",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-17",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-18",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-18",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-19",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-19",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-20",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-20",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-21",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-21",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-22",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-22",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-23",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-23",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-24",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-24",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-25",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-25",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-26",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-26",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-27",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-27",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
       "date": "2026-10-28",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-28",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-29",
-      "label": "FOMC decision",
+      "time": "14:00",
+      "kind": "fomc",
+      "label": "Fed rate decision",
+      "meeting": "Oct 27–28",
       "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
     },
     {
       "date": "2026-10-29",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-29",
+      "time": "08:30",
+      "kind": "gdp",
       "label": "GDP",
-      "url": "https://www.bea.gov/news/schedule"
+      "url": "https://www.bea.gov/news/schedule",
+      "period": "2026-07-01",
+      "periodLabel": "Q3 2026",
+      "estimate": "advance"
     },
     {
       "date": "2026-10-29",
+      "time": "08:30",
+      "kind": "pce",
       "label": "PCE inflation",
-      "url": "https://www.bea.gov/news/schedule"
-    },
-    {
-      "date": "2026-10-30",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-30",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-31",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-10-31",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-01",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-01",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-02",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-02",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-03",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-03",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-04",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-04",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-05",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-05",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+      "url": "https://www.bea.gov/news/schedule",
+      "period": "2026-09-01",
+      "periodLabel": "Sep 2026"
     },
     {
       "date": "2026-11-06",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-06",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-06",
+      "time": "08:30",
+      "kind": "jobs",
       "label": "Jobs report",
-      "url": "https://www.bls.gov/schedule/news_release/empsit.htm"
-    },
-    {
-      "date": "2026-11-07",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-07",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-08",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-08",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-09",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-09",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+      "url": "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "period": "2026-10-01",
+      "periodLabel": "Oct 2026"
     },
     {
       "date": "2026-11-10",
-      "label": "CPI",
-      "url": "https://www.bls.gov/schedule/news_release/cpi.htm"
-    },
-    {
-      "date": "2026-11-10",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-10",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-11",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-11",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-12",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-12",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+      "time": "08:30",
+      "kind": "cpi",
+      "label": "CPI inflation",
+      "url": "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "period": "2026-10-01",
+      "periodLabel": "Oct 2026"
     },
     {
       "date": "2026-11-13",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-13",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-13",
-      "label": "PPI",
-      "url": "https://www.bls.gov/schedule/news_release/ppi.htm"
-    },
-    {
-      "date": "2026-11-14",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-14",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-15",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-15",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-16",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-16",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-17",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-17",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+      "time": "08:30",
+      "kind": "ppi",
+      "label": "PPI inflation",
+      "url": "https://www.bls.gov/schedule/news_release/ppi.htm",
+      "period": "2026-10-01",
+      "periodLabel": "Oct 2026"
     },
     {
       "date": "2026-11-18",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-18",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-19",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-19",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-20",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-20",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-21",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-21",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-22",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-22",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-23",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-23",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-24",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-24",
-      "label": "FOMC minutes",
+      "time": "14:00",
+      "kind": "minutes",
+      "label": "Fed meeting minutes",
+      "meeting": "Oct 27–28",
       "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
     },
     {
       "date": "2026-11-25",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-25",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-25",
+      "time": "08:30",
+      "kind": "gdp",
       "label": "GDP",
-      "url": "https://www.bea.gov/news/schedule"
+      "url": "https://www.bea.gov/news/schedule",
+      "period": "2026-07-01",
+      "periodLabel": "Q3 2026",
+      "estimate": "revised"
     },
     {
       "date": "2026-11-25",
+      "time": "08:30",
+      "kind": "pce",
       "label": "PCE inflation",
-      "url": "https://www.bea.gov/news/schedule"
-    },
-    {
-      "date": "2026-11-26",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-26",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-27",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-27",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-28",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-28",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-29",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-29",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-30",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-11-30",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-01",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-01",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-02",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-02",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-03",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-03",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+      "url": "https://www.bea.gov/news/schedule",
+      "period": "2026-10-01",
+      "periodLabel": "Oct 2026"
     },
     {
       "date": "2026-12-04",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-04",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-04",
+      "time": "08:30",
+      "kind": "jobs",
       "label": "Jobs report",
-      "url": "https://www.bls.gov/schedule/news_release/empsit.htm"
-    },
-    {
-      "date": "2026-12-05",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-05",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-06",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-06",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-07",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-07",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-08",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-08",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+      "url": "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "period": "2026-11-01",
+      "periodLabel": "Nov 2026"
     },
     {
       "date": "2026-12-09",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-09",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-10",
-      "label": "CPI",
-      "url": "https://www.bls.gov/schedule/news_release/cpi.htm"
+      "time": "14:00",
+      "kind": "fomc",
+      "label": "Fed rate decision",
+      "meeting": "Dec 8–9",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "projections": true
     },
     {
       "date": "2026-12-10",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-10",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-11",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-11",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-12",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-12",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-13",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-13",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-14",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-14",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+      "time": "08:30",
+      "kind": "cpi",
+      "label": "CPI inflation",
+      "url": "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "period": "2026-11-01",
+      "periodLabel": "Nov 2026"
     },
     {
       "date": "2026-12-15",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-15",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-15",
-      "label": "PPI",
-      "url": "https://www.bls.gov/schedule/news_release/ppi.htm"
-    },
-    {
-      "date": "2026-12-16",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-16",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-17",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-17",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-18",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-18",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-19",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-19",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-20",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-20",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-21",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-21",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-22",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-22",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+      "time": "08:30",
+      "kind": "ppi",
+      "label": "PPI inflation",
+      "url": "https://www.bls.gov/schedule/news_release/ppi.htm",
+      "period": "2026-11-01",
+      "periodLabel": "Nov 2026"
     },
     {
       "date": "2026-12-23",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-23",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-23",
+      "time": "08:30",
+      "kind": "gdp",
       "label": "GDP",
-      "url": "https://www.bea.gov/news/schedule"
+      "url": "https://www.bea.gov/news/schedule",
+      "period": "2026-07-01",
+      "periodLabel": "Q3 2026",
+      "estimate": "revised"
     },
     {
       "date": "2026-12-23",
+      "time": "08:30",
+      "kind": "pce",
       "label": "PCE inflation",
-      "url": "https://www.bea.gov/news/schedule"
-    },
-    {
-      "date": "2026-12-24",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-24",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-25",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-25",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-26",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-26",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-27",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-27",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-28",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-28",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-29",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-29",
-      "label": "FOMC minutes",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+      "url": "https://www.bea.gov/news/schedule",
+      "period": "2026-11-01",
+      "periodLabel": "Nov 2026"
     },
     {
       "date": "2026-12-30",
-      "label": "FOMC decision",
-      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
-    },
-    {
-      "date": "2026-12-30",
-      "label": "FOMC minutes",
+      "time": "14:00",
+      "kind": "minutes",
+      "label": "Fed meeting minutes",
+      "meeting": "Dec 8–9",
       "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
     }
   ],
+  "fed": {
+    "lower": 3.75,
+    "upper": 4.0,
+    "asOf": "2026-10-16",
+    "lastChange": {
+      "effective": "2026-09-17",
+      "fromLower": 3.5,
+      "fromUpper": 3.75,
+      "toLower": 3.75,
+      "toUpper": 4.0,
+      "bp": 25,
+      "meeting": "Sep 15–16",
+      "meetingEnd": "2026-09-16"
+    },
+    "effr": {
+      "value": 3.88,
+      "date": "2026-10-15"
+    }
+  },
+  "fomc": {
+    "source": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+    "meetings": [
+      {
+        "start": "2021-01-26",
+        "end": "2021-01-27"
+      },
+      {
+        "start": "2021-03-16",
+        "end": "2021-03-17",
+        "sep": true
+      },
+      {
+        "start": "2021-04-27",
+        "end": "2021-04-28"
+      },
+      {
+        "start": "2021-06-15",
+        "end": "2021-06-16",
+        "sep": true
+      },
+      {
+        "start": "2021-07-27",
+        "end": "2021-07-28"
+      },
+      {
+        "start": "2021-09-21",
+        "end": "2021-09-22",
+        "sep": true
+      },
+      {
+        "start": "2021-11-02",
+        "end": "2021-11-03"
+      },
+      {
+        "start": "2021-12-14",
+        "end": "2021-12-15",
+        "sep": true
+      },
+      {
+        "start": "2022-01-25",
+        "end": "2022-01-26"
+      },
+      {
+        "start": "2022-03-15",
+        "end": "2022-03-16",
+        "sep": true
+      },
+      {
+        "start": "2022-05-03",
+        "end": "2022-05-04"
+      },
+      {
+        "start": "2022-06-14",
+        "end": "2022-06-15",
+        "sep": true
+      },
+      {
+        "start": "2022-07-26",
+        "end": "2022-07-27"
+      },
+      {
+        "start": "2022-09-20",
+        "end": "2022-09-21",
+        "sep": true
+      },
+      {
+        "start": "2022-11-01",
+        "end": "2022-11-02"
+      },
+      {
+        "start": "2022-12-13",
+        "end": "2022-12-14",
+        "sep": true
+      },
+      {
+        "start": "2023-01-31",
+        "end": "2023-02-01"
+      },
+      {
+        "start": "2023-03-21",
+        "end": "2023-03-22",
+        "sep": true
+      },
+      {
+        "start": "2023-05-02",
+        "end": "2023-05-03"
+      },
+      {
+        "start": "2023-06-13",
+        "end": "2023-06-14",
+        "sep": true
+      },
+      {
+        "start": "2023-07-25",
+        "end": "2023-07-26"
+      },
+      {
+        "start": "2023-09-19",
+        "end": "2023-09-20",
+        "sep": true
+      },
+      {
+        "start": "2023-10-31",
+        "end": "2023-11-01"
+      },
+      {
+        "start": "2023-12-12",
+        "end": "2023-12-13",
+        "sep": true
+      },
+      {
+        "start": "2024-01-30",
+        "end": "2024-01-31"
+      },
+      {
+        "start": "2024-03-19",
+        "end": "2024-03-20",
+        "sep": true
+      },
+      {
+        "start": "2024-04-30",
+        "end": "2024-05-01"
+      },
+      {
+        "start": "2024-06-11",
+        "end": "2024-06-12",
+        "sep": true
+      },
+      {
+        "start": "2024-07-30",
+        "end": "2024-07-31"
+      },
+      {
+        "start": "2024-09-17",
+        "end": "2024-09-18",
+        "sep": true
+      },
+      {
+        "start": "2024-11-06",
+        "end": "2024-11-07"
+      },
+      {
+        "start": "2024-12-17",
+        "end": "2024-12-18",
+        "sep": true
+      },
+      {
+        "start": "2025-01-28",
+        "end": "2025-01-29"
+      },
+      {
+        "start": "2025-03-18",
+        "end": "2025-03-19",
+        "sep": true
+      },
+      {
+        "start": "2025-05-06",
+        "end": "2025-05-07"
+      },
+      {
+        "start": "2025-06-17",
+        "end": "2025-06-18",
+        "sep": true
+      },
+      {
+        "start": "2025-07-29",
+        "end": "2025-07-30"
+      },
+      {
+        "start": "2025-09-16",
+        "end": "2025-09-17",
+        "sep": true
+      },
+      {
+        "start": "2025-10-28",
+        "end": "2025-10-29"
+      },
+      {
+        "start": "2025-12-09",
+        "end": "2025-12-10",
+        "sep": true
+      },
+      {
+        "start": "2026-01-27",
+        "end": "2026-01-28"
+      },
+      {
+        "start": "2026-03-17",
+        "end": "2026-03-18",
+        "sep": true
+      },
+      {
+        "start": "2026-04-28",
+        "end": "2026-04-29"
+      },
+      {
+        "start": "2026-06-16",
+        "end": "2026-06-17",
+        "sep": true
+      },
+      {
+        "start": "2026-07-28",
+        "end": "2026-07-29"
+      },
+      {
+        "start": "2026-09-15",
+        "end": "2026-09-16",
+        "sep": true
+      },
+      {
+        "start": "2026-10-27",
+        "end": "2026-10-28"
+      },
+      {
+        "start": "2026-12-08",
+        "end": "2026-12-09",
+        "sep": true
+      },
+      {
+        "start": "2027-01-26",
+        "end": "2027-01-27"
+      },
+      {
+        "start": "2027-03-16",
+        "end": "2027-03-17",
+        "sep": true
+      },
+      {
+        "start": "2027-04-27",
+        "end": "2027-04-28"
+      },
+      {
+        "start": "2027-06-08",
+        "end": "2027-06-09",
+        "sep": true
+      },
+      {
+        "start": "2027-07-27",
+        "end": "2027-07-28"
+      },
+      {
+        "start": "2027-09-14",
+        "end": "2027-09-15",
+        "sep": true
+      },
+      {
+        "start": "2027-10-26",
+        "end": "2027-10-27"
+      },
+      {
+        "start": "2027-12-07",
+        "end": "2027-12-08",
+        "sep": true
+      }
+    ]
+  },
   "files": {
     "curve": "curve/{year}.json",
     "series": "series/{id}.json",
