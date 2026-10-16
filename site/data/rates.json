@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": "2026-10-16T15:43:41Z",
-  "lastCheckedAt": "2026-10-16T15:43:41Z",
+  "updatedAt": "2026-10-16T23:35:30Z",
+  "lastCheckedAt": "2026-10-16T23:35:30Z",
   "historyYears": [
     2024,
     2025,
@@ -21,10 +21,10 @@
       ],
       "status": "ok",
       "errorMessage": null,
-      "lastCheckedAt": "2026-10-16T15:43:41Z",
-      "lastSuccessAt": "2026-10-16T15:43:41Z",
-      "latestObservationDate": "2026-10-15",
-      "observationCount": 697,
+      "lastCheckedAt": "2026-10-16T23:35:30Z",
+      "lastSuccessAt": "2026-10-16T23:35:30Z",
+      "latestObservationDate": "2026-10-16",
+      "observationCount": 698,
       "maturities": [
         {
           "key": "1M",
@@ -13382,6 +13382,25 @@
             "20Y": 5.48,
             "30Y": 5.43
           }
+        },
+        {
+          "date": "2026-10-16",
+          "yields": {
+            "1M": 4.12,
+            "6W": 4.14,
+            "2M": 4.17,
+            "3M": 4.26,
+            "4M": 4.32,
+            "6M": 4.34,
+            "1Y": 4.46,
+            "2Y": 4.74,
+            "3Y": 4.82,
+            "5Y": 4.89,
+            "7Y": 4.98,
+            "10Y": 5.09,
+            "20Y": 5.47,
+            "30Y": 5.43
+          }
         }
       ]
     },
@@ -13395,8 +13414,8 @@
       "fetchedUrl": "https://markets.newyorkfed.org/api/rates/unsecured/effr/search.json?startDate=2026-09-01&endDate=2026-10-16",
       "status": "ok",
       "errorMessage": null,
-      "lastCheckedAt": "2026-10-16T15:43:41Z",
-      "lastSuccessAt": "2026-10-16T15:43:41Z",
+      "lastCheckedAt": "2026-10-16T23:35:30Z",
+      "lastSuccessAt": "2026-10-16T23:35:30Z",
       "latestObservationDate": "2026-10-15",
       "observationCount": 700,
       "observations": [
@@ -21812,8 +21831,8 @@
       "fetchedUrl": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-09-01&endDate=2026-10-16",
       "status": "ok",
       "errorMessage": null,
-      "lastCheckedAt": "2026-10-16T15:43:41Z",
-      "lastSuccessAt": "2026-10-16T15:43:41Z",
+      "lastCheckedAt": "2026-10-16T23:35:30Z",
+      "lastSuccessAt": "2026-10-16T23:35:30Z",
       "latestObservationDate": "2026-10-15",
       "observationCount": 696,
       "observations": [
