@@ -21,6 +21,11 @@ sys.path.insert(0, str(ROOT_DIR / "scripts"))
 
 import update_extended_data as ext  # noqa: E402
 
+# Transitional: this file passes both before and after the FOMC calendar update lands.
+NEW_CALENDAR = hasattr(ext, "parse_fomc_calendar")
+NEEDS_NEW = unittest.skipUnless(NEW_CALENDAR, "needs the FOMC calendar update")
+OLD_ONLY = unittest.skipIf(NEW_CALENDAR, "replaced by the FOMC calendar tests")
+
 FAKE_KEY = "abcdef0123456789abcdef0123456789"
 
 
@@ -83,6 +88,44 @@ def monthly_dates(start: str, count: int) -> List[str]:
     return [ext.month_shift(start, i) for i in range(count)]
 
 
+# Shortened copy of the Fed's FOMC calendar page markup (one panel per year).
+FOMC_PAGE = """<!DOCTYPE html><html lang="en"><body><div id="article">
+<div class="panel panel-default"><div class="panel-heading"><h4><a id="47776">2026 FOMC Meetings</a></h4></div>
+  <div class="row fomc-meeting" style="">
+    <div class="fomc-meeting__month col-xs-5 col-sm-3 col-md-2"><strong>September</strong></div>
+    <div class="fomc-meeting__date col-xs-4 col-sm-9 col-md-10 col-lg-1">15-16*</div>
+    <div class="col-xs-12 col-md-4 col-lg-4 fomc-meeting__minutes"><strong>Minutes:</strong> <a href="/x.htm">HTML</a></div>
+  </div>
+  <div class="fomc-meeting--shaded row fomc-meeting">
+    <div class="fomc-meeting--shaded fomc-meeting__month col-xs-5 col-sm-3 col-md-2"><strong>October</strong></div>
+    <div class="fomc-meeting__date col-xs-4 col-sm-9 col-md-10 col-lg-2">27-28</div>
+  </div>
+  <div class="row fomc-meeting">
+    <div class="fomc-meeting__month col-xs-5 col-sm-3 col-md-2"><strong>December</strong></div>
+    <div class="fomc-meeting__date col-xs-4 col-sm-9 col-md-10 col-lg-1">8-9*</div>
+  </div>
+</div>
+<div class="panel panel-default"><div class="panel-heading"><h4><a id="1">2025 FOMC Meetings</a></h4></div>
+  <div class="row fomc-meeting"><div class="fomc-meeting__month col-xs-5"><strong>August</strong></div>
+    <div class="fomc-meeting__date col-xs-4">22 (notation vote)</div></div>
+  <div class="row fomc-meeting"><div class="fomc-meeting__month col-xs-5"><strong>December</strong></div>
+    <div class="fomc-meeting__date col-xs-4">9-10*</div></div>
+</div>
+<div class="panel panel-default"><div class="panel-heading"><h4><a id="2">2023 FOMC Meetings</a></h4></div>
+  <div class="row fomc-meeting"><div class="fomc-meeting__month col-xs-5"><strong>Jan/Feb</strong></div>
+    <div class="fomc-meeting__date col-xs-4">31-1</div></div>
+</div>
+<div class="panel panel-default"><div class="panel-heading"><h4><a id="3">2020 FOMC Meetings</a></h4></div>
+  <div class="row fomc-meeting"><div class="fomc-meeting__month col-xs-5"><strong>March</strong></div>
+    <div class="fomc-meeting__date col-xs-4">3 (unscheduled)</div></div>
+</div>
+<div class="panel panel-default"><div class="panel-heading"><h4><a id="4">2027 <span>FOMC</span> Meetings</a></h4></div>
+  <div class="row fomc-meeting"><div class="fomc-meeting__month col-xs-5"><strong>January</strong></div>
+    <div class="fomc-meeting__date col-xs-4">26-27</div></div>
+</div>
+</div></body></html>"""
+
+
 class FakeNetwork:
     """Routes request URLs to canned responses and records them."""
 
@@ -102,6 +145,8 @@ class FakeNetwork:
             return self.fred(parsed.path, query)
         if "fiscaldata" in parsed.netloc:
             return self.fiscal(parsed.path)
+        if "federalreserve.gov" in parsed.netloc:
+            return FOMC_PAGE.encode("utf-8")
         raise AssertionError(f"Unexpected URL {url}")
 
     def treasury(self, query: Dict[str, List[str]]) -> bytes:
@@ -356,7 +401,8 @@ class TestFred(unittest.TestCase):
                   ("2020-03-01", 1.0), ("2020-04-01", 1.0)]
         self.assertEqual(ext.recession_periods(points), [["1857-07-01", "1857-08-31"], ["2020-03-01", "2020-04-30"]])
 
-    def test_upcoming_events_and_fomc_minutes(self) -> None:
+    @OLD_ONLY
+    def test_upcoming_events_and_fomc_minutes_legacy(self) -> None:
         events = ext.upcoming_events(
             {"CPIAUCSL": ["2026-09-11", "2026-11-10"], "UNRATE": ["2027-06-04"]},
             ["2026-09-16", "2026-10-28"],
@@ -369,6 +415,133 @@ class TestFred(unittest.TestCase):
         self.assertNotIn(("2026-09-11", "CPI"), labels)
         self.assertNotIn(("2027-06-04", "Jobs report"), labels)
         self.assertEqual(labels, sorted(labels))
+
+
+
+    MEETINGS = [
+        {"start": "2026-09-15", "end": "2026-09-16", "sep": True},
+        {"start": "2026-10-27", "end": "2026-10-28"},
+        {"start": "2026-12-08", "end": "2026-12-09", "sep": True},
+    ]
+
+    @NEEDS_NEW
+    def test_upcoming_events_one_decision_per_meeting_with_periods(self) -> None:
+        events = ext.upcoming_events(
+            {
+                "CPIAUCSL": ["2026-09-11", "2026-10-14", "2026-11-10", "2026-12-10"],
+                "UNRATE": ["2026-11-06", "2027-06-04"],
+                "A191RL1Q225SBEA": ["2026-10-29", "2026-11-25", "2026-12-23"],
+            },
+            self.MEETINGS,
+            datetime.date(2026, 10, 15),
+            {"CPI_YOY": "2026-09-01", "UNRATE": "2026-09-01", "GDP": "2026-04-01"},
+        )
+        by_kind = {}
+        for e in events:
+            by_kind.setdefault(e["kind"], []).append(e)
+        # Rate decisions only on meeting days (2:00 pm ET), projections flagged.
+        self.assertEqual([(e["date"], e["meeting"], e.get("projections", False)) for e in by_kind["fomc"]],
+                         [("2026-10-28", "Oct 27–28", False), ("2026-12-09", "Dec 8–9", True)])
+        self.assertTrue(all(e["time"] == "14:00" and e["label"] == "Fed rate decision" for e in by_kind["fomc"]))
+        # Minutes three weeks after the decision; September's were before today, December's beyond the horizon.
+        self.assertEqual([(e["date"], e["meeting"]) for e in by_kind["minutes"]], [("2026-11-18", "Oct 27–28")])
+        # Data releases at 8:30 am ET with the period they cover.
+        self.assertEqual([(e["date"], e["periodLabel"]) for e in by_kind["cpi"]],
+                         [("2026-11-10", "Oct 2026"), ("2026-12-10", "Nov 2026")])
+        self.assertEqual([(e["date"], e["periodLabel"]) for e in by_kind["jobs"]], [("2026-11-06", "Oct 2026")])
+        self.assertEqual([(e["periodLabel"], e["estimate"]) for e in by_kind["gdp"]],
+                         [("Q3 2026", "advance"), ("Q3 2026", "revised"), ("Q3 2026", "revised")])
+        self.assertTrue(all(e["time"] == "08:30" for e in by_kind["cpi"] + by_kind["gdp"]))
+        keys = [(e["date"], e["time"], e["label"]) for e in events]
+        self.assertEqual(keys, sorted(keys))
+
+    @NEEDS_NEW
+    def test_release_periods_only_label_dates_that_follow_on(self) -> None:
+        # Published earlier today, then next month's release.
+        self.assertEqual(
+            {d: v["periodLabel"] for d, v in ext.release_periods("ppi", ["2026-10-15", "2026-11-13"], "2026-09-01").items()},
+            {"2026-10-15": "Sep 2026", "2026-11-13": "Oct 2026"},
+        )
+        # A gap (stale data, delayed release) gets no label rather than a wrong one.
+        self.assertEqual(ext.release_periods("cpi", ["2026-11-10", "2026-12-10"], "2026-08-01"), {})
+        self.assertEqual(ext.release_periods("gdp", ["2026-10-29"], "2026-01-01"), {})
+        self.assertEqual(ext.release_periods("cpi", ["2026-11-10"], None), {})
+        # Releases in January cover the fourth quarter of the year before.
+        self.assertEqual(ext.release_periods("gdp", ["2027-01-28"], "2026-07-01")["2027-01-28"]["periodLabel"], "Q4 2026")
+
+    @NEEDS_NEW
+    def test_parse_fomc_calendar_page(self) -> None:
+        meetings = ext.parse_fomc_calendar(FOMC_PAGE)
+        self.assertEqual(meetings, [
+            {"start": "2020-03-03", "end": "2020-03-03", "unscheduled": True},
+            {"start": "2023-01-31", "end": "2023-02-01"},
+            {"start": "2025-12-09", "end": "2025-12-10", "sep": True},
+            {"start": "2026-09-15", "end": "2026-09-16", "sep": True},
+            {"start": "2026-10-27", "end": "2026-10-28"},
+            {"start": "2026-12-08", "end": "2026-12-09", "sep": True},
+            {"start": "2027-01-26", "end": "2027-01-27"},
+        ])
+        self.assertEqual(ext.parse_fomc_calendar("<html><body>Page moved</body></html>"), [])
+        self.assertEqual(ext.meeting_label({"start": "2023-01-31", "end": "2023-02-01"}), "Jan 31–Feb 1")
+        self.assertEqual(ext.meeting_label({"start": "2020-03-03", "end": "2020-03-03"}), "Mar 3")
+
+    @NEEDS_NEW
+    def test_merge_and_normalize_meetings(self) -> None:
+        saved = ext.normalize_meetings([
+            {"start": "2026-10-27", "end": "2026-10-28", "sep": "yes"},
+            {"start": "bad", "end": "2026-01-01"},
+            {"start": "2026-12-01", "end": "2026-12-30"},
+            "junk",
+        ])
+        self.assertEqual(saved, [{"start": "2026-10-27", "end": "2026-10-28"}])
+        merged = ext.merge_meetings(
+            [{"start": "2026-01-27", "end": "2026-01-28"}, {"start": "2027-01-26", "end": "2027-01-27"}],
+            [{"start": "2026-10-27", "end": "2026-10-28"}],
+        )
+        # The later source replaces the whole year it covers.
+        self.assertEqual([m["start"] for m in merged], ["2026-10-27", "2027-01-26"])
+
+    @NEEDS_NEW
+    def test_fed_policy_summary_maps_the_last_move_to_its_meeting(self) -> None:
+        lower = [("2026-09-15", 3.5), ("2026-09-16", 3.5), ("2026-09-17", 3.75), ("2026-10-15", 3.75)]
+        upper = [("2026-09-15", 3.75), ("2026-09-16", 3.75), ("2026-09-17", 4.0), ("2026-10-15", 4.0)]
+        summary = ext.fed_policy_summary(lower, upper, self.MEETINGS, {"value": 3.88, "date": "2026-10-14"})
+        self.assertEqual(summary, {
+            "lower": 3.75, "upper": 4.0, "asOf": "2026-10-15",
+            "lastChange": {"effective": "2026-09-17", "fromLower": 3.5, "fromUpper": 3.75, "toLower": 3.75,
+                           "toUpper": 4.0, "bp": 25, "meeting": "Sep 15–16", "meetingEnd": "2026-09-16"},
+            "effr": {"value": 3.88, "date": "2026-10-14"},
+        })
+        cut = ext.fed_policy_summary([("2020-03-13", 1.0), ("2020-03-16", 0.0)], [("2020-03-13", 1.25), ("2020-03-16", 0.25)], [])
+        self.assertEqual(cut["lastChange"]["bp"], -100)
+        self.assertNotIn("meeting", cut["lastChange"])
+        self.assertIsNone(ext.fed_policy_summary([], [], []))
+
+    @NEEDS_NEW
+    def test_latest_effr_prefers_the_ny_fed_file(self) -> None:
+        rates = {"sources": {"effr": {"observations": [
+            {"date": "2026-10-14", "rate": 3.88}, {"date": "2026-10-13", "rate": 3.87}, {"date": "bad", "rate": 9}]}}}
+        self.assertEqual(ext.latest_effr(rates, [("2026-10-12", 3.86)]), {"value": 3.88, "date": "2026-10-14"})
+        self.assertEqual(ext.latest_effr(None, [("2026-10-12", 3.86)]), {"value": 3.86, "date": "2026-10-12"})
+        self.assertEqual(ext.latest_effr({"sources": {}}, []), None)
+
+    @NEEDS_NEW
+    def test_indicators_have_prior_reading_and_release_date(self) -> None:
+        latest = {
+            "CPI_MOM": [("2026-08-01", 0.396), ("2026-09-01", 0.6492)],
+            "GDP": [("2026-01-01", 2.5), ("2026-04-01", 2.2)],
+        }
+        releases = {"CPI_MOM": {"2026-09-01": ("2026-10-14", 0)}, "GDP": {"2026-04-01": ("2026-09-30", 1)}}
+        items = ext.build_indicators(latest, releases)
+        self.assertEqual([i["id"] for i in items], ["CPI_MOM", "GDP"])  # one row per indicator
+        cpi, gdp = items
+        self.assertEqual(cpi["value"], 0.649)  # three decimals: the page rounds once (0.6%, not 0.7%)
+        self.assertEqual((cpi["previous"], cpi["previousPeriodLabel"]), (0.396, "Aug 2026"))
+        self.assertEqual(cpi["released"], "2026-10-14")
+        self.assertNotIn("revised", cpi)
+        self.assertEqual((gdp["periodLabel"], gdp["previousPeriodLabel"], gdp["released"], gdp["revised"]),
+                         ("Q2 2026", "Q1 2026", "2026-09-30", True))
+        self.assertTrue(gdp["about"])
 
 
 class TestFiscalData(unittest.TestCase):
@@ -470,7 +643,8 @@ class TestEndToEnd(unittest.TestCase):
         updater.run()
         return updater
 
-    def test_full_run_outputs_and_idempotence(self) -> None:
+    @OLD_ONLY
+    def test_full_run_outputs_and_idempotence_legacy(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             data_dir = Path(tmp)
             first = self.run_updater(data_dir, FAKE_KEY, FakeNetwork(), "2026-10-15T15:17:00Z")
@@ -526,6 +700,73 @@ class TestEndToEnd(unittest.TestCase):
             self.assertEqual(before, after)
             self.assertGreater(len(first.changed_files), 10)
 
+
+    @NEEDS_NEW
+    def test_full_run_outputs_and_idempotence(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            data_dir = Path(tmp)
+            first = self.run_updater(data_dir, FAKE_KEY, FakeNetwork(), "2026-10-15T15:17:00Z")
+            manifest = json.loads((data_dir / "manifest.json").read_text())
+            self.assertEqual(manifest["schemaVersion"], "2.1")
+            self.assertEqual({k: v["status"] for k, v in manifest["sources"].items()},
+                             {"treasuryNominal": "ok", "treasuryReal": "ok", "fred": "ok", "fiscal": "ok",
+                              "fedCalendar": "ok"})
+            self.assertEqual(manifest["updatedAt"], "2026-10-15T15:17:00Z")
+
+            # Curve files: Treasury years plus FRED-based history before 1990.
+            curve_2026 = json.loads((data_dir / "curve" / "2026.json").read_text())
+            self.assertEqual(curve_2026["source"], "treasury")
+            self.assertEqual(curve_2026["real"]["10Y"], [2.2, 2.3])
+            self.assertTrue((data_dir / "curve" / "1985.json").exists())
+            self.assertTrue((data_dir / "curve" / "1953.json").exists())
+            self.assertEqual(manifest["curve"]["firstDate"], "1953-04-01")
+            self.assertEqual(manifest["curve"]["years"]["1985"]["source"], "fred")
+
+            # Series: spliced nominal history, TIPS, policy rates without weekends.
+            ust10 = json.loads((data_dir / "series" / "UST10Y.json").read_text())
+            self.assertEqual(ust10["dates"][0], "1953-04-01")
+            self.assertEqual(ust10["dates"][-1], "2026-01-05")
+            effr = json.loads((data_dir / "series" / "EFFR.json").read_text())
+            self.assertEqual(effr["dates"], ["2026-10-09", "2026-10-12"])
+            self.assertTrue((data_dir / "series" / "TIPS10Y.json").exists())
+            cpi_mom_initial = json.loads((data_dir / "series" / "CPI_MOM_INITIAL.json").read_text())
+            self.assertIn("2026-07-01", cpi_mom_initial["dates"])
+            self.assertIn("released", cpi_mom_initial)
+            self.assertIn("UST10Y", manifest["series"])
+            self.assertEqual(manifest["series"]["UST10Y"]["group"], "yields")
+
+            # Sidebar, recessions, revisions, debt.
+            unrate = next(i for i in manifest["indicators"] if i["id"] == "UNRATE")
+            self.assertEqual((unrate["value"], unrate["previous"], unrate["released"]), (4.2, 4.3, "2026-10-02"))
+            self.assertEqual(sum(1 for i in manifest["indicators"] if i["id"] == "GDP"), 1)
+            # Fed decisions come from the Fed's calendar page, not FRED's daily release list.
+            fomc = [(e["date"], e["kind"]) for e in manifest["events"] if e["kind"] in ("fomc", "minutes")]
+            self.assertEqual(fomc, [("2026-10-28", "fomc"), ("2026-11-18", "minutes"), ("2026-12-09", "fomc")])
+            cpi = next(e for e in manifest["events"] if e["kind"] == "cpi")
+            self.assertEqual((cpi["date"], cpi["time"], cpi["label"]), ("2026-11-10", "08:30", "CPI inflation"))
+            self.assertIn({"start": "2026-10-27", "end": "2026-10-28"}, manifest["fomc"]["meetings"])
+            self.assertEqual(manifest["fed"]["effr"], {"value": 3.87, "date": "2026-10-12"})
+            recessions = json.loads((data_dir / "recessions.json").read_text())
+            self.assertEqual(recessions["periods"], [["2020-03-01", "2020-04-30"]])
+            revisions = json.loads((data_dir / "revisions.json").read_text())
+            self.assertTrue(any(e[0] == "GDP" and e[3] == 1 for e in revisions["events"]))
+            ceiling = json.loads((data_dir / "debt" / "ceiling.json").read_text())
+            self.assertEqual(ceiling["statutoryLimit"], [41103996])
+            self.assertEqual(ceiling["cashBalance"], [920214])
+            self.assertTrue((data_dir / "debt" / "maturities.json").exists())
+
+            # The API key never reaches any output file.
+            for path in data_dir.rglob("*.json"):
+                self.assertNotIn(FAKE_KEY, path.read_text(), str(path))
+
+            # A second run with identical data changes nothing (no noisy commits).
+            before = {p: p.read_text() for p in data_dir.rglob("*.json")}
+            second = self.run_updater(data_dir, FAKE_KEY, FakeNetwork(), "2026-10-15T23:17:00Z")
+            self.assertEqual(second.changed_files, [])
+            after = {p: p.read_text() for p in data_dir.rglob("*.json")}
+            self.assertEqual(before, after)
+            self.assertGreater(len(first.changed_files), 10)
+
     def test_missing_key_and_source_outage_keep_previous_data(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             data_dir = Path(tmp)
@@ -541,6 +782,23 @@ class TestEndToEnd(unittest.TestCase):
             self.assertTrue((data_dir / "series" / "EFFR.json").exists())
             self.assertTrue((data_dir / "debt" / "ceiling.json").exists())
             self.assertEqual(manifest["updatedAt"], "2026-10-15T23:17:00Z")
+
+    @NEEDS_NEW
+    def test_fed_calendar_outage_uses_saved_schedule(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            data_dir = Path(tmp)
+            self.run_updater(data_dir, None, FakeNetwork(fail_hosts=("federalreserve",)), "2026-10-15T15:17:00Z")
+            manifest = json.loads((data_dir / "manifest.json").read_text())
+            status = manifest["sources"]["fedCalendar"]
+            self.assertEqual(status["status"], "partial")
+            self.assertIn("saved meeting schedule", status["errorMessage"])
+            # Built-in schedule: one decision on Oct 28, none on the days around it.
+            decisions = [e["date"] for e in manifest["events"] if e["kind"] == "fomc"]
+            self.assertEqual(decisions, ["2026-10-28", "2026-12-09"])
+            # The next run reads the page again and reports normally.
+            self.run_updater(data_dir, None, FakeNetwork(), "2026-10-15T23:17:00Z")
+            manifest = json.loads((data_dir / "manifest.json").read_text())
+            self.assertEqual(manifest["sources"]["fedCalendar"]["status"], "ok")
 
     def test_first_run_without_key(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
