@@ -15,9 +15,13 @@ Sources
        - economic release calendar.
   4. U.S. Treasury Fiscal Data API (no key): Daily Treasury Statement (cash balance,
      debt subject to limit, statutory debt limit) and Monthly Statement of the Public Debt.
+  5. Federal Reserve FOMC meeting calendar page (no key): meeting dates, for the rate
+     decision and minutes dates in the sidebar. A saved or built-in schedule is used
+     when the page cannot be read.
 
 Outputs (under site/data/, all JSON)
   manifest.json            metadata, source status, series catalog, sidebar data
+                           (upcoming events, latest indicators, Fed policy, FOMC meetings)
   curve/YYYY.json          one file per year of daily curves (nominal + real)
   series/<ID>.json         one file per time series (dates + values)
   recessions.json          NBER recession periods
@@ -39,6 +43,7 @@ from __future__ import annotations
 import argparse
 import calendar
 import datetime
+import html as html_lib
 import json
 import os
 import re
@@ -57,7 +62,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import update_data as core  # noqa: E402  (shared fetch/parse helpers)
 
 
-SCHEMA_VERSION = "2.0"
+SCHEMA_VERSION = "2.1"
 ROOT_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_DATA_DIR = ROOT_DIR / "site" / "data"
 
@@ -167,17 +172,66 @@ REALTIME_OBSERVATION_START = "1999-01-01"
 MAX_FIRST_RELEASE_LAG_DAYS = {"monthly": 100, "quarterly": 150}
 MAX_REVISION_EVENTS = 8000
 
+# Scheduled data releases. FRED supplies the dates; "metric" is the indicator that
+# tells which data period was published last. "oldLabel" reads calendars saved by
+# earlier versions of this script.
 CALENDAR_RELEASES: List[Dict[str, str]] = [
-    {"series": "CPIAUCSL", "label": "CPI", "url": "https://www.bls.gov/schedule/news_release/cpi.htm"},
-    {"series": "PPIFIS", "label": "PPI", "url": "https://www.bls.gov/schedule/news_release/ppi.htm"},
-    {"series": "UNRATE", "label": "Jobs report", "url": "https://www.bls.gov/schedule/news_release/empsit.htm"},
-    {"series": "A191RL1Q225SBEA", "label": "GDP", "url": "https://www.bea.gov/news/schedule"},
-    {"series": "PCEPI", "label": "PCE inflation", "url": "https://www.bea.gov/news/schedule"},
+    {"series": "CPIAUCSL", "kind": "cpi", "label": "CPI inflation", "oldLabel": "CPI", "metric": "CPI_YOY",
+     "url": "https://www.bls.gov/schedule/news_release/cpi.htm"},
+    {"series": "PPIFIS", "kind": "ppi", "label": "PPI inflation", "oldLabel": "PPI", "metric": "PPI_YOY",
+     "url": "https://www.bls.gov/schedule/news_release/ppi.htm"},
+    {"series": "UNRATE", "kind": "jobs", "label": "Jobs report", "oldLabel": "Jobs report", "metric": "UNRATE",
+     "url": "https://www.bls.gov/schedule/news_release/empsit.htm"},
+    {"series": "A191RL1Q225SBEA", "kind": "gdp", "label": "GDP", "oldLabel": "GDP", "metric": "GDP",
+     "url": "https://www.bea.gov/news/schedule"},
+    {"series": "PCEPI", "kind": "pce", "label": "PCE inflation", "oldLabel": "PCE inflation", "metric": "PCE_YOY",
+     "url": "https://www.bea.gov/news/schedule"},
 ]
-FOMC_RELEASE_ID = 101
+DATA_RELEASE_TIME_ET = "08:30"  # BLS and BEA releases
+FOMC_RELEASE_TIME_ET = "14:00"  # policy statement and minutes
 FOMC_CALENDAR_URL = "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
 FOMC_MINUTES_LAG_DAYS = 21  # minutes are released three weeks after each decision
+FOMC_HISTORY_YEARS = 6  # meetings kept in the manifest (for mapping rate changes to meetings)
 CALENDAR_HORIZON_DAYS = 75
+
+# Meetings as published on the Fed's calendar in October 2026 (2027 dates are
+# tentative). Used only when the page cannot be read and no saved schedule exists.
+FOMC_MEETINGS_FALLBACK: List[Dict[str, Any]] = [
+    {"start": "2025-01-28", "end": "2025-01-29"},
+    {"start": "2025-03-18", "end": "2025-03-19", "sep": True},
+    {"start": "2025-05-06", "end": "2025-05-07"},
+    {"start": "2025-06-17", "end": "2025-06-18", "sep": True},
+    {"start": "2025-07-29", "end": "2025-07-30"},
+    {"start": "2025-09-16", "end": "2025-09-17", "sep": True},
+    {"start": "2025-10-28", "end": "2025-10-29"},
+    {"start": "2025-12-09", "end": "2025-12-10", "sep": True},
+    {"start": "2026-01-27", "end": "2026-01-28"},
+    {"start": "2026-03-17", "end": "2026-03-18", "sep": True},
+    {"start": "2026-04-28", "end": "2026-04-29"},
+    {"start": "2026-06-16", "end": "2026-06-17", "sep": True},
+    {"start": "2026-07-28", "end": "2026-07-29"},
+    {"start": "2026-09-15", "end": "2026-09-16", "sep": True},
+    {"start": "2026-10-27", "end": "2026-10-28"},
+    {"start": "2026-12-08", "end": "2026-12-09", "sep": True},
+    {"start": "2027-01-26", "end": "2027-01-27"},
+    {"start": "2027-03-16", "end": "2027-03-17", "sep": True},
+    {"start": "2027-04-27", "end": "2027-04-28"},
+    {"start": "2027-06-08", "end": "2027-06-09", "sep": True},
+    {"start": "2027-07-27", "end": "2027-07-28"},
+    {"start": "2027-09-14", "end": "2027-09-15", "sep": True},
+    {"start": "2027-10-26", "end": "2027-10-27"},
+    {"start": "2027-12-07", "end": "2027-12-08", "sep": True},
+]
+
+# Sidebar "Latest economic data": metric id, display label, plain-English description.
+INDICATOR_SPECS: List[Tuple[str, str, str]] = [
+    ("CPI_YOY", "CPI inflation, y/y", "Consumer prices compared with a year earlier (CPI-U, not seasonally adjusted)"),
+    ("CPI_MOM", "CPI inflation, m/m", "Consumer prices compared with the month before (seasonally adjusted)"),
+    ("PCE_YOY", "PCE inflation, y/y", "The Fed's preferred inflation gauge, compared with a year earlier"),
+    ("PPI_YOY", "PPI inflation, y/y", "Producer prices for final demand, compared with a year earlier"),
+    ("GDP", "GDP growth, annualized", "Real GDP growth compared with the previous quarter, at an annual rate"),
+    ("UNRATE", "Unemployment rate", "Share of the labor force without a job"),
+]
 
 SOURCE_INFO: Dict[str, Dict[str, str]] = {
     "treasuryNominal": {
@@ -203,6 +257,12 @@ SOURCE_INFO: Dict[str, Dict[str, str]] = {
         "shortName": "Fiscal Data",
         "url": "https://fiscaldata.treasury.gov/",
         "docsUrl": FISCAL_DOCS_URL,
+    },
+    "fedCalendar": {
+        "name": "Federal Reserve — FOMC meeting calendar",
+        "shortName": "FOMC calendar",
+        "url": FOMC_CALENDAR_URL,
+        "docsUrl": FOMC_CALENDAR_URL,
     },
 }
 
@@ -820,33 +880,285 @@ def recession_periods(points: Sequence[Tuple[str, float]]) -> List[List[str]]:
     return periods
 
 
+# ---------------------------------------------------------------------------
+# Economic calendar: FOMC meetings and scheduled data releases
+# ---------------------------------------------------------------------------
+
+MONTH_NUMBERS = {name.lower(): number for number, name in enumerate(calendar.month_abbr) if name}
+
+
+def strip_tags(fragment: str) -> str:
+    text = html_lib.unescape(re.sub(r"<[^>]+>", " ", fragment))
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def parse_fomc_calendar(page: str) -> List[Dict[str, Any]]:
+    """
+    Meetings from the Fed's FOMC calendar page. Each year is a panel headed
+    "2026 FOMC Meetings"; each meeting row has a month cell ("October", "Jan/Feb")
+    and a date cell ("27-28", "16-17*" for meetings with economic projections,
+    "31-1", "22 (notation vote)"). Notation votes and cancelled meetings are skipped.
+    """
+    gap = r"(?:\s|<[^>]+>)+"  # spaces or inline tags between words
+    headings = [
+        (m.start(), int(m.group(1)))
+        for m in re.finditer(r"\b((?:19|20)\d{2})" + gap + "FOMC" + gap + r"Meetings\b", page, re.I)
+    ]
+    cell = r'<(\w+)\b[^>]*\bclass=["\'][^"\']*\b{}\b[^"\']*["\'][^>]*>(.*?)</\1\s*>'
+    months = [(m.start(), strip_tags(m.group(2))) for m in re.finditer(cell.format("fomc-meeting__month"), page, re.S | re.I)]
+    dates = [(m.start(), strip_tags(m.group(2))) for m in re.finditer(cell.format("fomc-meeting__date"), page, re.S | re.I)]
+    meetings: Dict[str, Dict[str, Any]] = {}
+    for index, (pos, month_text) in enumerate(months):
+        next_pos = months[index + 1][0] if index + 1 < len(months) else len(page)
+        date_text = next((text for p, text in dates if pos < p < next_pos), None)
+        year = next((y for p, y in reversed(headings) if p < pos), None)
+        if date_text is None or year is None:
+            continue
+        month_numbers = [
+            MONTH_NUMBERS[part.strip()[:3].lower()]
+            for part in re.split(r"[/\-–]", month_text)
+            if part.strip()[:3].lower() in MONTH_NUMBERS
+        ]
+        match = re.match(r"(\d{1,2})(?:\s*[-–]\s*(\d{1,2}))?", date_text)
+        lowered = date_text.lower()
+        if not match or not month_numbers or "notation" in lowered or "cancel" in lowered:
+            continue
+        first_day = int(match.group(1))
+        last_day = int(match.group(2)) if match.group(2) else first_day
+        start_month, end_month = month_numbers[0], month_numbers[-1]
+        if last_day < first_day and end_month == start_month:
+            end_month = start_month % 12 + 1
+        try:
+            start = datetime.date(year, start_month, first_day)
+            end = datetime.date(year + (1 if end_month < start_month else 0), end_month, last_day)
+        except ValueError:
+            continue
+        if not 0 <= (end - start).days <= 3:
+            continue
+        meeting: Dict[str, Any] = {"start": start.isoformat(), "end": end.isoformat()}
+        if "*" in date_text:
+            meeting["sep"] = True
+        if "unscheduled" in lowered:
+            meeting["unscheduled"] = True
+        meetings[meeting["start"]] = meeting
+    return [meetings[key] for key in sorted(meetings)]
+
+
+def normalize_meetings(raw: Any) -> List[Dict[str, Any]]:
+    """Meetings from saved data; malformed entries are dropped."""
+    result: Dict[str, Dict[str, Any]] = {}
+    for item in raw if isinstance(raw, list) else []:
+        if not isinstance(item, dict):
+            continue
+        start, end = item.get("start"), item.get("end")
+        if not (core.is_valid_iso_date(start) and core.is_valid_iso_date(end)):
+            continue
+        if not 0 <= (to_date(end) - to_date(start)).days <= 3:
+            continue
+        meeting: Dict[str, Any] = {"start": start, "end": end}
+        for flag in ("sep", "unscheduled"):
+            if item.get(flag) is True:
+                meeting[flag] = True
+        result[start] = meeting
+    return [result[key] for key in sorted(result)]
+
+
+def merge_meetings(*sources: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Combine schedules year by year; a later source replaces the years it covers."""
+    by_year: Dict[str, List[Dict[str, Any]]] = {}
+    for source in sources:
+        years: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+        for meeting in source:
+            years[meeting["start"][:4]].append(dict(meeting))
+        by_year.update(years)
+    return sorted((m for items in by_year.values() for m in items), key=lambda m: m["start"])
+
+
+def meeting_label(meeting: Dict[str, Any]) -> str:
+    """'Oct 27–28', or 'Jan 31–Feb 1' when a meeting spans two months."""
+    start, end = to_date(meeting["start"]), to_date(meeting["end"])
+    first = f"{calendar.month_abbr[start.month]} {start.day}"
+    if start == end:
+        return first
+    if start.month == end.month:
+        return f"{first}–{end.day}"
+    return f"{first}–{calendar.month_abbr[end.month]} {end.day}"
+
+
+def quarter_before(d: datetime.date) -> datetime.date:
+    """First day of the latest quarter that ended before the month of d."""
+    index = (d.month - 1) // 3
+    return datetime.date(d.year - 1, 10, 1) if index == 0 else datetime.date(d.year, 3 * index - 2, 1)
+
+
+def release_periods(kind: str, dates: Sequence[str], latest_period: Optional[str]) -> Dict[str, Dict[str, str]]:
+    """
+    The data period each upcoming release covers: the month before the release for
+    monthly data, or the latest finished quarter (advance or revised estimate) for GDP.
+    Each guess must follow on from the last period already published; once a date
+    does not fit, it and later dates get no label rather than a wrong one.
+    """
+    labels: Dict[str, Dict[str, str]] = {}
+    if not latest_period or not core.is_valid_iso_date(latest_period):
+        return labels
+    latest = to_date(latest_period).replace(day=1)
+    if kind == "gdp":
+        next_quarter = to_date(month_shift(latest.isoformat(), 3))
+        seen: set = set()
+        for date_str in sorted(dates):
+            quarter = quarter_before(to_date(date_str))
+            if quarter == latest or quarter in seen:
+                estimate = "revised"
+            elif quarter == next_quarter:
+                estimate = "advance"
+            else:
+                break
+            seen.add(quarter)
+            labels[date_str] = {
+                "period": quarter.isoformat(),
+                "periodLabel": period_label(quarter.isoformat(), "quarterly"),
+                "estimate": estimate,
+            }
+        return labels
+    expected = to_date(month_shift(latest.isoformat(), 1))
+    for date_str in sorted(dates):
+        month = to_date(month_shift(date_str[:8] + "01", -1))
+        if month == expected:
+            expected = to_date(month_shift(expected.isoformat(), 1))
+        elif month != latest:  # latest = published earlier today
+            break
+        labels[date_str] = {"period": month.isoformat(), "periodLabel": period_label(month.isoformat(), "monthly")}
+    return labels
+
+
 def upcoming_events(
     release_dates: Dict[str, List[str]],
-    fomc_dates: List[str],
+    meetings: Sequence[Dict[str, Any]],
     today: datetime.date,
+    latest_periods: Optional[Dict[str, str]] = None,
     horizon_days: int = CALENDAR_HORIZON_DAYS,
-) -> List[Dict[str, str]]:
-    """Merge release calendars into a sorted list of upcoming events."""
+) -> List[Dict[str, Any]]:
+    """
+    Fed rate decisions and minutes plus scheduled data releases, sorted by date.
+    "time" is U.S. Eastern Time; the site shows it in each visitor's own time zone.
+    """
     end = today + datetime.timedelta(days=horizon_days)
-    events: List[Dict[str, str]] = []
-    labels = {r["series"]: r for r in CALENDAR_RELEASES}
-    for series_id, dates in release_dates.items():
-        info = labels.get(series_id)
-        if not info:
-            continue
-        for date_str in sorted(set(dates)):
-            d = to_date(date_str)
-            if today <= d <= end:
-                events.append({"date": date_str, "label": info["label"], "url": info["url"]})
-    for date_str in sorted(set(fomc_dates)):
-        d = to_date(date_str)
-        if today <= d <= end:
-            events.append({"date": date_str, "label": "FOMC decision", "url": FOMC_CALENDAR_URL})
-        minutes = d + datetime.timedelta(days=FOMC_MINUTES_LAG_DAYS)
-        if today <= minutes <= end:
-            events.append({"date": minutes.isoformat(), "label": "FOMC minutes", "url": FOMC_CALENDAR_URL})
-    events.sort(key=lambda e: (e["date"], e["label"]))
+    latest_periods = latest_periods or {}
+    events: List[Dict[str, Any]] = []
+    for release in CALENDAR_RELEASES:
+        window = sorted(
+            d for d in set(release_dates.get(release["series"]) or [])
+            if core.is_valid_iso_date(d) and today <= to_date(d) <= end
+        )
+        periods = release_periods(release["kind"], window, latest_periods.get(release["metric"]))
+        for date_str in window:
+            event: Dict[str, Any] = {
+                "date": date_str, "time": DATA_RELEASE_TIME_ET, "kind": release["kind"],
+                "label": release["label"], "url": release["url"],
+            }
+            event.update(periods.get(date_str, {}))
+            events.append(event)
+    for meeting in meetings:
+        decision = to_date(meeting["end"])
+        label = meeting_label(meeting)
+        if today <= decision <= end:
+            event = {
+                "date": meeting["end"], "time": FOMC_RELEASE_TIME_ET, "kind": "fomc",
+                "label": "Fed rate decision", "meeting": label, "url": FOMC_CALENDAR_URL,
+            }
+            if meeting.get("sep"):
+                event["projections"] = True
+            events.append(event)
+        minutes = decision + datetime.timedelta(days=FOMC_MINUTES_LAG_DAYS)
+        if not meeting.get("unscheduled") and today <= minutes <= end:
+            events.append({
+                "date": minutes.isoformat(), "time": FOMC_RELEASE_TIME_ET, "kind": "minutes",
+                "label": "Fed meeting minutes", "meeting": label, "url": FOMC_CALENDAR_URL,
+            })
+    events.sort(key=lambda e: (e["date"], e["time"], e["label"]))
     return events
+
+
+def release_dates_from_events(events: Any) -> Dict[str, List[str]]:
+    """Data-release dates from a saved event list (used when FRED could not be reached)."""
+    by_kind = {r["kind"]: r["series"] for r in CALENDAR_RELEASES}
+    by_label = {r["oldLabel"]: r["series"] for r in CALENDAR_RELEASES}
+    by_label.update({r["label"]: r["series"] for r in CALENDAR_RELEASES})
+    result: Dict[str, List[str]] = defaultdict(list)
+    for event in events if isinstance(events, list) else []:
+        if not isinstance(event, dict) or not core.is_valid_iso_date(event.get("date")):
+            continue
+        series = by_kind.get(event.get("kind")) or by_label.get(event.get("label"))
+        if series:
+            result[series].append(event["date"])
+    return dict(result)
+
+
+def fed_policy_summary(
+    lower_points: Sequence[Tuple[str, float]],
+    upper_points: Sequence[Tuple[str, float]],
+    meetings: Sequence[Dict[str, Any]],
+    effr: Optional[Dict[str, Any]] = None,
+) -> Optional[Dict[str, Any]]:
+    """Current target range, its last change (and the meeting that decided it) and the EFFR."""
+    lower, upper = dict(lower_points), dict(upper_points)
+    dates = sorted(set(lower) & set(upper))
+    if not dates:
+        return None
+    last = dates[-1]
+    summary: Dict[str, Any] = {"lower": round(lower[last], 2), "upper": round(upper[last], 2), "asOf": last}
+    for i in range(len(dates) - 1, 0, -1):
+        before, after = dates[i - 1], dates[i]
+        if (lower[before], upper[before]) == (lower[after], upper[after]):
+            continue
+        change: Dict[str, Any] = {
+            "effective": after,
+            "fromLower": round(lower[before], 2), "fromUpper": round(upper[before], 2),
+            "toLower": round(lower[after], 2), "toUpper": round(upper[after], 2),
+            "bp": int(round((upper[after] - upper[before]) * 100)),
+        }
+        effective = to_date(after)
+        meeting = next(
+            (m for m in meetings if to_date(m["end"]) < effective <= to_date(m["end"]) + datetime.timedelta(days=4)),
+            None,
+        )
+        if meeting:
+            change["meeting"] = meeting_label(meeting)
+            change["meetingEnd"] = meeting["end"]
+        summary["lastChange"] = change
+        break
+    if effr:
+        summary["effr"] = effr
+    return summary
+
+
+def latest_effr(rates_payload: Any, fallback: Sequence[Tuple[str, float]]) -> Optional[Dict[str, Any]]:
+    """Latest effective fed funds rate: the NY Fed figure saved by update_data.py, else FRED's."""
+    try:
+        observations = rates_payload["sources"]["effr"]["observations"]
+        best = max(
+            (o for o in observations if core.is_valid_iso_date(o.get("date")) and isinstance(o.get("rate"), (int, float))),
+            key=lambda o: o["date"],
+        )
+        return {"value": round(float(best["rate"]), 2), "date": best["date"]}
+    except (KeyError, TypeError, ValueError, AttributeError):
+        pass
+    if fallback:
+        date_str, value = fallback[-1]
+        return {"value": round(value, 2), "date": date_str}
+    return None
+
+
+def load_series_points(path: Path) -> List[Tuple[str, float]]:
+    """Points from a saved series/<ID>.json file (empty when missing)."""
+    payload = load_json(path)
+    if not isinstance(payload, dict):
+        return []
+    dates, values = payload.get("dates") or [], payload.get("values") or []
+    return [
+        (d, float(v)) for d, v in zip(dates, values)
+        if isinstance(v, (int, float)) and not isinstance(v, bool) and core.is_valid_iso_date(d)
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -1058,22 +1370,44 @@ def period_label(date_str: str, freq: str) -> str:
     return d.strftime("%b %Y")
 
 
-def build_indicators(latest: Dict[str, List[Tuple[str, float]]]) -> List[Dict[str, Any]]:
-    """Sidebar figures: latest CPI, PCE, PPI, GDP (two quarters) and unemployment."""
-    wanted = [("CPI_YOY", 1), ("CPI_MOM", 1), ("PCE_YOY", 1), ("PPI_YOY", 1), ("GDP", 2), ("UNRATE", 1)]
+def build_indicators(
+    latest: Dict[str, List[Tuple[str, float]]],
+    releases: Optional[Dict[str, Dict[str, Tuple[str, int]]]] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Sidebar figures: the latest value, the reading before it, and when the latest
+    value was published (releases[metric][period] = (date, revision number)).
+    Values keep three decimals so the page rounds them only once.
+    """
     metrics = {m["id"]: m for m in MACRO_METRICS}
+    releases = releases or {}
     result: List[Dict[str, Any]] = []
-    for metric_id, count in wanted:
+    for metric_id, label, about in INDICATOR_SPECS:
         points = latest.get(metric_id) or []
-        metric = metrics[metric_id]
-        for date_str, value in list(reversed(points))[:count]:
-            result.append({
-                "id": metric_id,
-                "label": metric["short"],
-                "period": date_str,
-                "periodLabel": period_label(date_str, metric["freq"]),
-                "value": round(value, 2),
-            })
+        if not points:
+            continue
+        freq = metrics[metric_id]["freq"]
+        period, value = points[-1]
+        item: Dict[str, Any] = {
+            "id": metric_id,
+            "label": label,
+            "about": about,
+            "frequency": freq,
+            "period": period,
+            "periodLabel": period_label(period, freq),
+            "value": round(value, 3),
+        }
+        if len(points) > 1:
+            previous_period, previous_value = points[-2]
+            item["previous"] = round(previous_value, 3)
+            item["previousPeriod"] = previous_period
+            item["previousPeriodLabel"] = period_label(previous_period, freq)
+        published = releases.get(metric_id, {}).get(period)
+        if published:
+            item["released"] = published[0]
+            if published[1] > 0:
+                item["revised"] = True
+        result.append(item)
     return result
 
 
@@ -1242,6 +1576,8 @@ class ExtendedUpdater:
         latest_transformed: Dict[str, List[Tuple[str, float]]] = {}
         revision_events: List[List[Any]] = []
         cpi_release_dates: Dict[str, str] = {}
+        # Latest publication of each period: release_info[metric][period] = (date, revision number).
+        release_info: Dict[str, Dict[str, Tuple[str, int]]] = defaultdict(dict)
 
         for order, metric in enumerate(MACRO_METRICS):
             def one_metric(metric: Dict[str, Any] = metric, order: int = order) -> None:
@@ -1269,6 +1605,10 @@ class ExtendedUpdater:
                 )
                 if metric["id"] == "CPI_YOY":
                     cpi_release_dates.update({period: released for period, _v, released in initial})
+                for _metric, period, when, number, _value, _previous in events:
+                    known = release_info[metric["id"]].get(period)
+                    if known is None or when >= known[0]:
+                        release_info[metric["id"]][period] = (when, number)
                 if metric["initial"] and initial:
                     initial_points = [(period, value) for period, value, _released in initial]
                     released = {period: rel for period, _v, rel in initial}
@@ -1291,7 +1631,8 @@ class ExtendedUpdater:
             outputs["series"]["CPI_YOY"] = (points, entry, cpi_release_dates)
 
         if latest_transformed:
-            outputs["indicators"] = build_indicators(latest_transformed)
+            outputs["indicators"] = build_indicators(latest_transformed, release_info)
+            outputs["latestPeriods"] = {metric_id: points[-1][0] for metric_id, points in latest_transformed.items()}
         if revision_events:
             revision_events.sort(key=lambda e: (e[2], e[1], e[0]), reverse=True)
             outputs["revisions"] = {
@@ -1304,7 +1645,8 @@ class ExtendedUpdater:
                 "events": revision_events[:MAX_REVISION_EVENTS],
             }
 
-        # 5. Release calendar.
+        # 5. Data release calendar (Fed meeting dates come from the Fed's own calendar,
+        # because FRED's "FOMC Press Release" lists a release every day).
         def release_calendar() -> None:
             release_dates: Dict[str, List[str]] = {}
             for release in CALENDAR_RELEASES:
@@ -1319,17 +1661,7 @@ class ExtendedUpdater:
                 release_dates[release["series"]] = [
                     item["date"] for item in dates_payload.get("release_dates", []) if core.is_valid_iso_date(item.get("date"))
                 ]
-            fomc_dates: List[str] = []
-            fomc_info = client.get("release", release_id=FOMC_RELEASE_ID).get("releases") or []
-            if fomc_info and "fomc" in str(fomc_info[0].get("name", "")).lower():
-                dates_payload = client.get(
-                    "release/dates", release_id=FOMC_RELEASE_ID, include_release_dates_with_no_data="true",
-                    sort_order="asc", limit=10000,
-                )
-                fomc_dates = [
-                    item["date"] for item in dates_payload.get("release_dates", []) if core.is_valid_iso_date(item.get("date"))
-                ]
-            outputs["events"] = upcoming_events(release_dates, fomc_dates, self.today)
+            outputs["releaseDates"] = release_dates
 
         attempt("release calendar", release_calendar)
 
@@ -1417,11 +1749,59 @@ class ExtendedUpdater:
             self.statuses["fiscal"] = status_entry("error", message, self.prev_status("fiscal"), self.now_iso)
             self.log(f"[fiscal] RETAINED previous data ({message})")
 
+    # -- FOMC meeting calendar ------------------------------------------------
+    def update_fed_calendar(self, outputs: Dict[str, Any]) -> None:
+        saved = normalize_meetings((self.previous_manifest.get("fomc") or {}).get("meetings"))
+        known = merge_meetings(FOMC_MEETINGS_FALLBACK, saved)
+        try:
+            page = self.fetcher(FOMC_CALENDAR_URL).decode("utf-8", errors="replace")
+            fresh = parse_fomc_calendar(page)
+            if not any(to_date(m["end"]) >= self.today for m in fresh):
+                raise DataSourceError("no upcoming meetings found on the FOMC calendar page (its layout may have changed)")
+            meetings = merge_meetings(known, fresh)
+            status, message = "ok", None
+        except Exception as exc:  # keep the saved schedule
+            meetings = known
+            has_upcoming = any(to_date(m["end"]) >= self.today for m in meetings)
+            status = "partial" if has_upcoming else "error"
+            message = f"Showing the saved meeting schedule ({exc})" if has_upcoming else str(exc)
+        cutoff = str(self.today.year - FOMC_HISTORY_YEARS)
+        meetings = [m for m in meetings if m["start"][:4] >= cutoff]
+        outputs["fomcMeetings"] = meetings
+        latest = meetings[-1]["end"] if meetings else None
+        self.statuses["fedCalendar"] = status_entry(status, message, self.prev_status("fedCalendar"), self.now_iso, latest)
+        upcoming = next((m for m in meetings if to_date(m["end"]) >= self.today), None)
+        self.log(
+            f"[fedCalendar] {status.upper()} — {len(meetings)} meetings"
+            + (f", next decision {upcoming['end']}" if upcoming else "")
+            + (f"; {message}" if message else "")
+        )
+
+    def build_events(self, outputs: Dict[str, Any], meetings: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        release_dates = outputs.get("releaseDates")
+        if release_dates is None:  # FRED unavailable: reuse the saved release dates
+            release_dates = release_dates_from_events(self.previous_manifest.get("events"))
+        latest_periods: Dict[str, str] = dict(outputs.get("latestPeriods") or {})
+        if not latest_periods:
+            for item in self.previous_manifest.get("indicators") or []:
+                if isinstance(item, dict) and isinstance(item.get("id"), str) and core.is_valid_iso_date(item.get("period")):
+                    latest_periods[item["id"]] = max(latest_periods.get(item["id"], ""), item["period"])
+        return upcoming_events(release_dates, meetings, self.today, latest_periods)
+
+    def build_fed_summary(self, outputs: Dict[str, Any], meetings: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        def points(series_id: str) -> List[Tuple[str, float]]:
+            item = outputs["series"].get(series_id)
+            return list(item[0]) if item else load_series_points(self.data_dir / "series" / f"{series_id}.json")
+
+        effr = latest_effr(load_json(self.data_dir / "rates.json"), points("EFFR"))
+        return fed_policy_summary(points("FED_TARGET_LOWER"), points("FED_TARGET_UPPER"), meetings, effr)
+
     # -- Orchestration -------------------------------------------------------
     def run(self) -> Dict[str, Any]:
         curve_years = load_curve_years(self.data_dir / "curve")
         outputs: Dict[str, Any] = {"series": {}}
 
+        self.update_fed_calendar(outputs)
         self.update_treasury(curve_years)
         self.update_fred(curve_years, outputs)
         self.update_fiscal()
@@ -1485,6 +1865,9 @@ class ExtendedUpdater:
         if not any(y < NOMINAL_FIRST_YEAR for y in curve_years):
             pre1990_version = None
         years_sorted = sorted(year_info)
+        meetings = outputs.get("fomcMeetings") or []
+        events = self.build_events(outputs, meetings)
+        fed = self.build_fed_summary(outputs, meetings)
         sources = {}
         for key, info in SOURCE_INFO.items():
             sources[key] = dict(info)
@@ -1505,7 +1888,9 @@ class ExtendedUpdater:
             },
             "series": {k: self.series_catalog[k] for k in sorted(self.series_catalog)},
             "indicators": outputs.get("indicators", self.previous_manifest.get("indicators") or []),
-            "events": outputs.get("events", self.previous_manifest.get("events") or []),
+            "events": events,
+            "fed": fed if fed is not None else self.previous_manifest.get("fed"),
+            "fomc": {"source": FOMC_CALENDAR_URL, "meetings": meetings},
             "files": {
                 "curve": "curve/{year}.json",
                 "series": "series/{id}.json",
@@ -1551,7 +1936,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     api_key = os.environ.get("FRED_API_KEY", "").strip() or None
 
     def fetcher(url: str) -> bytes:
-        accept = "application/json" if ("fiscaldata" in url or "stlouisfed" in url) else "application/xml, text/xml, */*"
+        if "fiscaldata" in url or "stlouisfed" in url:
+            accept = "application/json"
+        elif "federalreserve.gov" in url:
+            accept = "text/html, */*"
+        else:
+            accept = "application/xml, text/xml, */*"
         return core.fetch_url_with_retries(url, timeout=args.timeout, max_retries=args.retries, accept=accept)
 
     updater = ExtendedUpdater(
