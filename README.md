@@ -2,7 +2,7 @@
 
 **Yields** is a zero-dependency, static financial site that downloads, validates, and displays daily published U.S. interest rates and economic data from official government and Federal Reserve sources. It has separate views (tabs):
 
-- **Yield Curve** — the Treasury par yield curve for any date back to 1934: step through dates, pin curves to compare, and overlay the Fed funds target range, the overnight reverse repo (RRP) rate, TIPS real yields, breakeven inflation and the latest CPI reading. A sidebar shows upcoming economic releases and the latest macro indicators.
+- **Yield Curve** — the Treasury par yield curve for any date back to 1934: step through dates, pin curves to compare, and overlay the Fed funds target range, the overnight reverse repo (RRP) rate, TIPS real yields, breakeven inflation and the latest CPI reading. A sidebar shows upcoming Fed decisions and data releases in each visitor's own time zone with a countdown, the latest economic data next to the reading before it, and the Fed's current policy (target range, effective rate, last move and next decision).
 - **Time Series** — chart any combination of Treasury yields, spreads, policy rates, TIPS, breakevens, CPI, PCE, PPI, real GDP and unemployment (latest revision or as first reported), with NBER recessions shaded, shareable links and CSV export.
 - **Federal Debt** — the debt ceiling (debt subject to limit, statutory limit, Treasury General Account cash) and the debt's composition by security type.
 - **Valuation** — a calculator for how rate changes move the value of a Treasury note or bond (price, duration, convexity, DV01, scenarios).
@@ -44,7 +44,8 @@ All frontend assets (`site/index.html`, `site/styles.css`, `site/app.js`, and `s
 │   │   └── revisions.json  # Revision history of economic indicators
 │   ├── core.js             # Shared helpers, router, chart engine
 │   ├── app.js              # Rates Dashboard view
-│   ├── curve.js            # Yield Curve view and sidebar
+│   ├── curve.js            # Yield Curve view
+│   ├── sidebar.js          # Yield Curve sidebar: events, latest data, Fed policy
 │   ├── timeseries.js       # Time Series view
 │   ├── debt.js             # Federal Debt views
 │   ├── valuation.js        # Valuation calculator
@@ -83,7 +84,7 @@ python3 scripts/update_data.py
 FRED_API_KEY=your_key_here python3 scripts/update_extended_data.py
 ```
 
-`update_extended_data.py` works without `FRED_API_KEY` too; it then skips the FRED-based data (pre-1990 yields, Fed funds and RRP rates, inflation, GDP, unemployment, revisions, recessions and the release calendar). The first run downloads the full history (about 110 requests, a few minutes); later runs only refresh recent data. A free FRED API key is available from a FRED account at <https://fredaccount.stlouisfed.org/>.
+`update_extended_data.py` works without `FRED_API_KEY` too; it then skips the FRED-based data (pre-1990 yields, Fed funds and RRP rates, inflation, GDP, unemployment, revisions, recessions and the data release calendar). FOMC meeting dates come from the Federal Reserve's meeting calendar page and need no key; if that page cannot be read, the last saved schedule is used. The first run downloads the full history (about 110 requests, a few minutes); later runs only refresh recent data. A free FRED API key is available from a FRED account at <https://fredaccount.stlouisfed.org/>.
 
 - **First run**: Downloads the current calendar year and the previous two calendar years of official Treasury XML, EFFR JSON, and SOFR JSON history and writes `site/data/rates.json`.
 - **Subsequent runs**: Fetches recent months/observations, merges revisions, deduplicates by date, preserves missing values as `null` (never `0`), and only rewrites `site/data/rates.json` when meaningful observations or source statuses change.
@@ -231,3 +232,4 @@ Interest rate series are public official data published by:
 - **U.S. Department of the Treasury**: [Daily Treasury Par Yield Curve Rates](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve) and [Par Real Yield Curve Rates](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve) ([XML Feed Docs](https://home.treasury.gov/treasury-daily-interest-rate-xml-feed)); [Daily Treasury Statement](https://fiscaldata.treasury.gov/datasets/daily-treasury-statement/) and [Monthly Statement of the Public Debt](https://fiscaldata.treasury.gov/datasets/monthly-statement-public-debt/) via the [Fiscal Data API](https://fiscaldata.treasury.gov/api-documentation/)
 - **Federal Reserve Bank of New York**: [EFFR](https://www.newyorkfed.org/markets/reference-rates/effr) and [SOFR](https://www.newyorkfed.org/markets/reference-rates/sofr) ([Markets Data API Docs](https://markets.newyorkfed.org/static/docs/markets-api.html) · [Terms of Use](https://www.newyorkfed.org/markets/data-api-intangibles/terms-of-use))
 - **Federal Reserve Bank of St. Louis, FRED and ALFRED** ([API docs](https://fred.stlouisfed.org/docs/api/fred/)): historical Treasury yields (Board of Governors H.15), Fed funds target and effective rate, overnight reverse repo award rate, CPI and PPI (Bureau of Labor Statistics), PCE price index and real GDP (Bureau of Economic Analysis), unemployment rate, NBER recession indicators and the economic release calendar. FRED® is a registered trademark of the Federal Reserve Bank of St. Louis.
+- **Board of Governors of the Federal Reserve System**: [FOMC meeting calendar](https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm) (rate decision and minutes dates)
