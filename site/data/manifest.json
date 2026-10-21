@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.1",
-  "updatedAt": "2026-10-21T01:35:28Z",
+  "updatedAt": "2026-10-21T19:18:24Z",
   "fredKeyConfigured": true,
   "sources": {
     "treasuryNominal": {
@@ -10,7 +10,7 @@
       "docsUrl": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-21T01:35:28Z",
+      "lastSuccessAt": "2026-10-21T19:18:24Z",
       "latestObservationDate": "2026-10-20"
     },
     "treasuryReal": {
@@ -20,7 +20,7 @@
       "docsUrl": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-21T01:35:28Z",
+      "lastSuccessAt": "2026-10-21T19:18:24Z",
       "latestObservationDate": "2026-10-20"
     },
     "fred": {
@@ -28,11 +28,11 @@
       "shortName": "FRED",
       "url": "https://fred.stlouisfed.org/",
       "docsUrl": "https://fred.stlouisfed.org/docs/api/fred/",
-      "status": "ok",
-      "errorMessage": null,
+      "status": "error",
+      "errorMessage": "DFF: FRED returned invalid JSON for series/observations: Expecting value: line 1 column 1 (char 0); DFEDTAR: FRED returned invalid JSON for series/observations: Expecting value: line 1 column 1 (char 0); DFEDTARL: FRED returned invalid JSON for series/observations: Expecting value: line 1 column 1 (char 0); DFEDTARU: FRED returned invalid JSON for series/observations: Expecting value: line 1 column 1 (char 0); RRPONTSYAWARD: FRED returned invalid JSON for series/observations: Expecting value: line 1 column 1 (char 0); recessions: FRED returned invalid JSON for series/observations: Expecting value: line 1 column 1 (char 0); CPI_YOY: FRED returned invalid JSON for series/observations: Expecting value: line 1 column 1 (char 0); CPI_MOM: FRED returned invalid JSON for series/observations: Expecting value: line 1 column 1 (char 0); PCE_YOY: FRED returned invalid JSON for series/observations: Expecting value: line 1 column 1 (char 0); PCE_MOM: FRED returned invalid JSON for series/observations: Expecting value: line 1 column 1 (char 0); PPI_YOY: FRED returned invalid JSON for series/observations: Expecting value: line 1 column 1 (char 0); PPI_MOM: FRED returned invalid JSON for series/observations: Expecting value: line 1 column 1 (char 0); GDP: FRED returned invalid JSON for series/observations: Expecting value: line 1 column 1 (char 0); UNRATE: FRED returned invalid JSON for series/observations: Expecting value: line 1 column 1 (char 0); release calendar: FRED returned invalid JSON for series/release: Expecting value: line 1 column 1 (char 0)",
       "lastSuccessAt": "2026-10-21T01:35:28Z",
       "latestObservationDate": "2026-10-20",
-      "requests": 30
+      "requests": 15
     },
     "fiscal": {
       "name": "U.S. Treasury Fiscal Data — Daily Treasury Statement & Monthly Statement of the Public Debt",
@@ -41,7 +41,7 @@
       "docsUrl": "https://fiscaldata.treasury.gov/api-documentation/",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-21T01:35:28Z",
+      "lastSuccessAt": "2026-10-21T19:18:24Z",
       "latestObservationDate": "2026-10-19"
     },
     "fedCalendar": {
@@ -51,7 +51,7 @@
       "docsUrl": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-21T01:35:28Z",
+      "lastSuccessAt": "2026-10-21T19:18:24Z",
       "latestObservationDate": "2027-12-08"
     }
   },
@@ -1356,7 +1356,7 @@
     },
     "effr": {
       "value": 3.88,
-      "date": "2026-10-19"
+      "date": "2026-10-20"
     }
   },
   "fomc": {
