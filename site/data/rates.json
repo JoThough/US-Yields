@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": "2026-10-21T19:17:47Z",
-  "lastCheckedAt": "2026-10-21T19:17:47Z",
+  "updatedAt": "2026-10-22T01:30:44Z",
+  "lastCheckedAt": "2026-10-22T01:30:44Z",
   "historyYears": [
     2024,
     2025,
@@ -21,10 +21,10 @@
       ],
       "status": "ok",
       "errorMessage": null,
-      "lastCheckedAt": "2026-10-21T19:17:47Z",
-      "lastSuccessAt": "2026-10-21T19:17:47Z",
-      "latestObservationDate": "2026-10-20",
-      "observationCount": 700,
+      "lastCheckedAt": "2026-10-22T01:30:44Z",
+      "lastSuccessAt": "2026-10-22T01:30:44Z",
+      "latestObservationDate": "2026-10-21",
+      "observationCount": 701,
       "maturities": [
         {
           "key": "1M",
@@ -13439,6 +13439,25 @@
             "20Y": 5.47,
             "30Y": 5.42
           }
+        },
+        {
+          "date": "2026-10-21",
+          "yields": {
+            "1M": 4.09,
+            "6W": 4.12,
+            "2M": 4.16,
+            "3M": 4.25,
+            "4M": 4.34,
+            "6M": 4.35,
+            "1Y": 4.52,
+            "2Y": 4.81,
+            "3Y": 4.89,
+            "5Y": 4.95,
+            "7Y": 5.03,
+            "10Y": 5.13,
+            "20Y": 5.47,
+            "30Y": 5.42
+          }
         }
       ]
     },
@@ -13449,11 +13468,11 @@
       "endpoint": "https://markets.newyorkfed.org/api/rates/unsecured/effr/search.json",
       "documentationUrl": "https://markets.newyorkfed.org/static/docs/markets-api.html",
       "sourcePageUrl": "https://www.newyorkfed.org/markets/reference-rates/effr",
-      "fetchedUrl": "https://markets.newyorkfed.org/api/rates/unsecured/effr/search.json?startDate=2026-09-06&endDate=2026-10-21",
+      "fetchedUrl": "https://markets.newyorkfed.org/api/rates/unsecured/effr/search.json?startDate=2026-09-07&endDate=2026-10-22",
       "status": "ok",
       "errorMessage": null,
-      "lastCheckedAt": "2026-10-21T19:17:47Z",
-      "lastSuccessAt": "2026-10-21T19:17:47Z",
+      "lastCheckedAt": "2026-10-22T01:30:44Z",
+      "lastSuccessAt": "2026-10-22T01:30:44Z",
       "latestObservationDate": "2026-10-20",
       "observationCount": 703,
       "observations": [
@@ -21902,11 +21921,11 @@
       "endpoint": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json",
       "documentationUrl": "https://markets.newyorkfed.org/static/docs/markets-api.html",
       "sourcePageUrl": "https://www.newyorkfed.org/markets/reference-rates/sofr",
-      "fetchedUrl": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-09-06&endDate=2026-10-21",
+      "fetchedUrl": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-09-07&endDate=2026-10-22",
       "status": "ok",
       "errorMessage": null,
-      "lastCheckedAt": "2026-10-21T19:17:47Z",
-      "lastSuccessAt": "2026-10-21T19:17:47Z",
+      "lastCheckedAt": "2026-10-22T01:30:44Z",
+      "lastSuccessAt": "2026-10-22T01:30:44Z",
       "latestObservationDate": "2026-10-20",
       "observationCount": 699,
       "observations": [
