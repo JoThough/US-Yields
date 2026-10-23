@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.1",
-  "updatedAt": "2026-10-22T19:13:36Z",
+  "updatedAt": "2026-10-23T01:31:01Z",
   "fredKeyConfigured": true,
   "sources": {
     "treasuryNominal": {
@@ -10,8 +10,8 @@
       "docsUrl": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-22T19:13:36Z",
-      "latestObservationDate": "2026-10-21"
+      "lastSuccessAt": "2026-10-23T01:31:01Z",
+      "latestObservationDate": "2026-10-22"
     },
     "treasuryReal": {
       "name": "U.S. Treasury — Daily Par Real Yield Curve Rates (TIPS, 2003–present)",
@@ -20,8 +20,8 @@
       "docsUrl": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-22T19:13:36Z",
-      "latestObservationDate": "2026-10-21"
+      "lastSuccessAt": "2026-10-23T01:31:01Z",
+      "latestObservationDate": "2026-10-22"
     },
     "fred": {
       "name": "FRED / ALFRED, Federal Reserve Bank of St. Louis",
@@ -30,7 +30,7 @@
       "docsUrl": "https://fred.stlouisfed.org/docs/api/fred/",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-22T19:13:36Z",
+      "lastSuccessAt": "2026-10-23T01:31:01Z",
       "latestObservationDate": "2026-10-22",
       "requests": 30
     },
@@ -41,8 +41,8 @@
       "docsUrl": "https://fiscaldata.treasury.gov/api-documentation/",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-22T19:13:36Z",
-      "latestObservationDate": "2026-10-20"
+      "lastSuccessAt": "2026-10-23T01:31:01Z",
+      "latestObservationDate": "2026-10-21"
     },
     "fedCalendar": {
       "name": "Federal Reserve — FOMC meeting calendar",
@@ -51,13 +51,13 @@
       "docsUrl": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-22T19:13:36Z",
+      "lastSuccessAt": "2026-10-23T01:31:01Z",
       "latestObservationDate": "2027-12-08"
     }
   },
   "curve": {
     "firstDate": "1934-01-01",
-    "lastDate": "2026-10-21",
+    "lastDate": "2026-10-22",
     "years": {
       "1934": {
         "first": "1934-01-01",
@@ -613,8 +613,8 @@
       },
       "2026": {
         "first": "2026-01-02",
-        "last": "2026-10-21",
-        "count": 202,
+        "last": "2026-10-22",
+        "count": 203,
         "source": "treasury"
       }
     },
@@ -689,8 +689,8 @@
       "source": "FRED DFF",
       "sourceUrl": "https://fred.stlouisfed.org/series/DFF",
       "first": "1954-07-01",
-      "last": "2026-10-20",
-      "count": 18864
+      "last": "2026-10-21",
+      "count": 18865
     },
     "FED_TARGET": {
       "label": "Fed funds target rate (to 2008)",
@@ -869,8 +869,8 @@
       "source": "U.S. Treasury (real yield curve)",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve",
       "first": "2003-01-02",
-      "last": "2026-10-21",
-      "count": 5955
+      "last": "2026-10-22",
+      "count": 5956
     },
     "TIPS20Y": {
       "label": "20Y TIPS real yield",
@@ -881,8 +881,8 @@
       "source": "U.S. Treasury (real yield curve)",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve",
       "first": "2004-07-27",
-      "last": "2026-10-21",
-      "count": 5564
+      "last": "2026-10-22",
+      "count": 5565
     },
     "TIPS30Y": {
       "label": "30Y TIPS real yield",
@@ -893,8 +893,8 @@
       "source": "U.S. Treasury (real yield curve)",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve",
       "first": "2010-02-22",
-      "last": "2026-10-21",
-      "count": 4170
+      "last": "2026-10-22",
+      "count": 4171
     },
     "TIPS5Y": {
       "label": "5Y TIPS real yield",
@@ -905,8 +905,8 @@
       "source": "U.S. Treasury (real yield curve)",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve",
       "first": "2003-01-02",
-      "last": "2026-10-21",
-      "count": 5955
+      "last": "2026-10-22",
+      "count": 5956
     },
     "TIPS7Y": {
       "label": "7Y TIPS real yield",
@@ -917,8 +917,8 @@
       "source": "U.S. Treasury (real yield curve)",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_real_yield_curve",
       "first": "2003-01-02",
-      "last": "2026-10-21",
-      "count": 5955
+      "last": "2026-10-22",
+      "count": 5956
     },
     "UNRATE": {
       "label": "Unemployment rate — latest revision",
@@ -953,8 +953,8 @@
       "source": "U.S. Treasury / FRED",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
       "first": "1953-04-01",
-      "last": "2026-10-21",
-      "count": 18200
+      "last": "2026-10-22",
+      "count": 18201
     },
     "UST1M": {
       "label": "1-Month Treasury",
@@ -965,8 +965,8 @@
       "source": "U.S. Treasury / FRED",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
       "first": "2001-07-31",
-      "last": "2026-10-21",
-      "count": 6308
+      "last": "2026-10-22",
+      "count": 6309
     },
     "UST1Y": {
       "label": "1-Year Treasury",
@@ -977,8 +977,8 @@
       "source": "U.S. Treasury / FRED",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
       "first": "1953-04-01",
-      "last": "2026-10-21",
-      "count": 18200
+      "last": "2026-10-22",
+      "count": 18201
     },
     "UST20Y": {
       "label": "20-Year Treasury",
@@ -989,8 +989,8 @@
       "source": "U.S. Treasury / FRED",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
       "first": "1953-04-01",
-      "last": "2026-10-21",
-      "count": 16511
+      "last": "2026-10-22",
+      "count": 16512
     },
     "UST2M": {
       "label": "2-Month Treasury",
@@ -1001,8 +1001,8 @@
       "source": "U.S. Treasury / FRED",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
       "first": "2018-10-16",
-      "last": "2026-10-21",
-      "count": 2003
+      "last": "2026-10-22",
+      "count": 2004
     },
     "UST2Y": {
       "label": "2-Year Treasury",
@@ -1013,8 +1013,8 @@
       "source": "U.S. Treasury / FRED",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
       "first": "1976-06-01",
-      "last": "2026-10-21",
-      "count": 12594
+      "last": "2026-10-22",
+      "count": 12595
     },
     "UST30Y": {
       "label": "30-Year Treasury",
@@ -1025,8 +1025,8 @@
       "source": "U.S. Treasury / FRED",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
       "first": "1977-02-15",
-      "last": "2026-10-21",
-      "count": 11422
+      "last": "2026-10-22",
+      "count": 11423
     },
     "UST3M": {
       "label": "3-Month Treasury",
@@ -1037,8 +1037,8 @@
       "source": "U.S. Treasury / FRED",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
       "first": "1934-01-01",
-      "last": "2026-10-21",
-      "count": 18429
+      "last": "2026-10-22",
+      "count": 18430
     },
     "UST3Y": {
       "label": "3-Year Treasury",
@@ -1049,8 +1049,8 @@
       "source": "U.S. Treasury / FRED",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
       "first": "1953-04-01",
-      "last": "2026-10-21",
-      "count": 18200
+      "last": "2026-10-22",
+      "count": 18201
     },
     "UST4M": {
       "label": "4-Month Treasury",
@@ -1061,8 +1061,8 @@
       "source": "U.S. Treasury / FRED",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
       "first": "2022-10-19",
-      "last": "2026-10-21",
-      "count": 1001
+      "last": "2026-10-22",
+      "count": 1002
     },
     "UST5Y": {
       "label": "5-Year Treasury",
@@ -1073,8 +1073,8 @@
       "source": "U.S. Treasury / FRED",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
       "first": "1953-04-01",
-      "last": "2026-10-21",
-      "count": 18200
+      "last": "2026-10-22",
+      "count": 18201
     },
     "UST6M": {
       "label": "6-Month Treasury",
@@ -1085,8 +1085,8 @@
       "source": "U.S. Treasury / FRED",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
       "first": "1958-12-09",
-      "last": "2026-10-21",
-      "count": 16952
+      "last": "2026-10-22",
+      "count": 16953
     },
     "UST6W": {
       "label": "6-Week Treasury",
@@ -1097,8 +1097,8 @@
       "source": "U.S. Treasury / FRED",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
       "first": "2025-02-18",
-      "last": "2026-10-21",
-      "count": 420
+      "last": "2026-10-22",
+      "count": 421
     },
     "UST7Y": {
       "label": "7-Year Treasury",
@@ -1109,8 +1109,8 @@
       "source": "U.S. Treasury / FRED",
       "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
       "first": "1969-07-01",
-      "last": "2026-10-21",
-      "count": 14316
+      "last": "2026-10-22",
+      "count": 14317
     }
   },
   "indicators": [
