@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.1",
-  "updatedAt": "2026-10-27T20:06:10Z",
+  "updatedAt": "2026-10-28T02:15:00Z",
   "fredKeyConfigured": true,
   "sources": {
     "treasuryNominal": {
@@ -10,7 +10,7 @@
       "docsUrl": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-27T20:06:10Z",
+      "lastSuccessAt": "2026-10-28T02:15:00Z",
       "latestObservationDate": "2026-10-27"
     },
     "treasuryReal": {
@@ -20,7 +20,7 @@
       "docsUrl": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-27T20:06:10Z",
+      "lastSuccessAt": "2026-10-28T02:15:00Z",
       "latestObservationDate": "2026-10-27"
     },
     "fred": {
@@ -30,7 +30,7 @@
       "docsUrl": "https://fred.stlouisfed.org/docs/api/fred/",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-27T20:06:10Z",
+      "lastSuccessAt": "2026-10-28T02:15:00Z",
       "latestObservationDate": "2026-10-27",
       "requests": 30
     },
@@ -41,7 +41,7 @@
       "docsUrl": "https://fiscaldata.treasury.gov/api-documentation/",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-27T20:06:10Z",
+      "lastSuccessAt": "2026-10-28T02:15:00Z",
       "latestObservationDate": "2026-10-26"
     },
     "fedCalendar": {
@@ -51,7 +51,7 @@
       "docsUrl": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
       "status": "ok",
       "errorMessage": null,
-      "lastSuccessAt": "2026-10-27T20:06:10Z",
+      "lastSuccessAt": "2026-10-28T02:15:00Z",
       "latestObservationDate": "2027-12-08"
     }
   },
@@ -689,8 +689,8 @@
       "source": "FRED DFF",
       "sourceUrl": "https://fred.stlouisfed.org/series/DFF",
       "first": "1954-07-01",
-      "last": "2026-10-23",
-      "count": 18867
+      "last": "2026-10-26",
+      "count": 18868
     },
     "FED_TARGET": {
       "label": "Fed funds target rate (to 2008)",
