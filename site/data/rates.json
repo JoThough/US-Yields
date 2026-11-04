@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": "2026-11-03T20:58:05Z",
-  "lastCheckedAt": "2026-11-03T20:58:05Z",
+  "updatedAt": "2026-11-04T21:19:49Z",
+  "lastCheckedAt": "2026-11-04T21:19:49Z",
   "historyYears": [
     2024,
     2025,
@@ -22,10 +22,10 @@
       ],
       "status": "ok",
       "errorMessage": null,
-      "lastCheckedAt": "2026-11-03T20:58:05Z",
-      "lastSuccessAt": "2026-11-03T20:58:05Z",
-      "latestObservationDate": "2026-11-03",
-      "observationCount": 710,
+      "lastCheckedAt": "2026-11-04T21:19:49Z",
+      "lastSuccessAt": "2026-11-04T21:19:49Z",
+      "latestObservationDate": "2026-11-04",
+      "observationCount": 711,
       "maturities": [
         {
           "key": "1M",
@@ -13630,6 +13630,25 @@
             "20Y": 5.35,
             "30Y": 5.32
           }
+        },
+        {
+          "date": "2026-11-04",
+          "yields": {
+            "1M": 4.01,
+            "6W": 4.08,
+            "2M": 4.15,
+            "3M": 4.21,
+            "4M": 4.2,
+            "6M": 4.25,
+            "1Y": 4.39,
+            "2Y": 4.58,
+            "3Y": 4.64,
+            "5Y": 4.69,
+            "7Y": 4.77,
+            "10Y": 4.9,
+            "20Y": 5.3,
+            "30Y": 5.28
+          }
         }
       ]
     },
@@ -13640,13 +13659,13 @@
       "endpoint": "https://markets.newyorkfed.org/api/rates/unsecured/effr/search.json",
       "documentationUrl": "https://markets.newyorkfed.org/static/docs/markets-api.html",
       "sourcePageUrl": "https://www.newyorkfed.org/markets/reference-rates/effr",
-      "fetchedUrl": "https://markets.newyorkfed.org/api/rates/unsecured/effr/search.json?startDate=2026-09-19&endDate=2026-11-03",
+      "fetchedUrl": "https://markets.newyorkfed.org/api/rates/unsecured/effr/search.json?startDate=2026-09-20&endDate=2026-11-04",
       "status": "ok",
       "errorMessage": null,
-      "lastCheckedAt": "2026-11-03T20:58:05Z",
-      "lastSuccessAt": "2026-11-03T20:58:05Z",
-      "latestObservationDate": "2026-11-02",
-      "observationCount": 712,
+      "lastCheckedAt": "2026-11-04T21:19:49Z",
+      "lastSuccessAt": "2026-11-04T21:19:49Z",
+      "latestObservationDate": "2026-11-03",
+      "observationCount": 713,
       "observations": [
         {
           "date": "2024-01-02",
@@ -22191,6 +22210,18 @@
           "revisionIndicator": "",
           "targetRateFrom": 3.75,
           "targetRateTo": 4.0
+        },
+        {
+          "date": "2026-11-03",
+          "rate": 3.88,
+          "percentile1": 3.85,
+          "percentile25": 3.87,
+          "percentile75": 3.89,
+          "percentile99": 3.95,
+          "volumeInBillions": 113.0,
+          "revisionIndicator": "",
+          "targetRateFrom": 3.75,
+          "targetRateTo": 4.0
         }
       ]
     },
@@ -22201,13 +22232,13 @@
       "endpoint": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json",
       "documentationUrl": "https://markets.newyorkfed.org/static/docs/markets-api.html",
       "sourcePageUrl": "https://www.newyorkfed.org/markets/reference-rates/sofr",
-      "fetchedUrl": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-09-19&endDate=2026-11-03",
+      "fetchedUrl": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-09-20&endDate=2026-11-04",
       "status": "ok",
       "errorMessage": null,
-      "lastCheckedAt": "2026-11-03T20:58:05Z",
-      "lastSuccessAt": "2026-11-03T20:58:05Z",
-      "latestObservationDate": "2026-11-02",
-      "observationCount": 708,
+      "lastCheckedAt": "2026-11-04T21:19:49Z",
+      "lastSuccessAt": "2026-11-04T21:19:49Z",
+      "latestObservationDate": "2026-11-03",
+      "observationCount": 709,
       "observations": [
         {
           "date": "2024-01-02",
@@ -29287,6 +29318,16 @@
           "percentile75": 4.0,
           "percentile99": 4.03,
           "volumeInBillions": 3268.0,
+          "revisionIndicator": ""
+        },
+        {
+          "date": "2026-11-03",
+          "rate": 3.97,
+          "percentile1": 3.88,
+          "percentile25": 3.95,
+          "percentile75": 4.03,
+          "percentile99": 4.05,
+          "volumeInBillions": 3260.0,
           "revisionIndicator": ""
         }
       ]
