@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": "2026-11-18T22:35:16Z",
-  "lastCheckedAt": "2026-11-18T22:35:16Z",
+  "updatedAt": "2026-11-19T22:39:56Z",
+  "lastCheckedAt": "2026-11-19T22:39:56Z",
   "historyYears": [
     2024,
     2025,
@@ -21,10 +21,10 @@
       ],
       "status": "ok",
       "errorMessage": null,
-      "lastCheckedAt": "2026-11-18T22:35:16Z",
-      "lastSuccessAt": "2026-11-18T22:35:16Z",
-      "latestObservationDate": "2026-11-18",
-      "observationCount": 720,
+      "lastCheckedAt": "2026-11-19T22:39:56Z",
+      "lastSuccessAt": "2026-11-19T22:39:56Z",
+      "latestObservationDate": "2026-11-19",
+      "observationCount": 721,
       "maturities": [
         {
           "key": "1M",
@@ -13819,6 +13819,25 @@
             "20Y": 5.44,
             "30Y": 5.41
           }
+        },
+        {
+          "date": "2026-11-19",
+          "yields": {
+            "1M": 4.2,
+            "6W": 4.27,
+            "2M": 4.29,
+            "3M": 4.34,
+            "4M": 4.35,
+            "6M": 4.42,
+            "1Y": 4.62,
+            "2Y": 4.76,
+            "3Y": 4.81,
+            "5Y": 4.86,
+            "7Y": 4.94,
+            "10Y": 5.04,
+            "20Y": 5.43,
+            "30Y": 5.4
+          }
         }
       ]
     },
@@ -13830,9 +13849,9 @@
       "documentationUrl": "https://markets.newyorkfed.org/static/docs/markets-api.html",
       "sourcePageUrl": "https://www.newyorkfed.org/markets/reference-rates/effr",
       "fetchedUrl": "https://markets.newyorkfed.org/api/rates/unsecured/effr/search.json?startDate=2026-10-04&endDate=2026-11-18",
-      "status": "ok",
-      "errorMessage": null,
-      "lastCheckedAt": "2026-11-18T22:35:16Z",
+      "status": "error",
+      "errorMessage": "Invalid JSON from NY Fed (EFFR): Expecting value: line 1 column 1 (char 0)",
+      "lastCheckedAt": "2026-11-19T22:39:56Z",
       "lastSuccessAt": "2026-11-18T22:35:16Z",
       "latestObservationDate": "2026-11-17",
       "observationCount": 722,
@@ -22511,9 +22530,9 @@
       "documentationUrl": "https://markets.newyorkfed.org/static/docs/markets-api.html",
       "sourcePageUrl": "https://www.newyorkfed.org/markets/reference-rates/sofr",
       "fetchedUrl": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-10-04&endDate=2026-11-18",
-      "status": "ok",
-      "errorMessage": null,
-      "lastCheckedAt": "2026-11-18T22:35:16Z",
+      "status": "error",
+      "errorMessage": "Invalid JSON from NY Fed (SOFR): Expecting value: line 1 column 1 (char 0)",
+      "lastCheckedAt": "2026-11-19T22:39:56Z",
       "lastSuccessAt": "2026-11-18T22:35:16Z",
       "latestObservationDate": "2026-11-17",
       "observationCount": 718,
